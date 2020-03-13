@@ -1,0 +1,10 @@
+class CrossJSTemplate {
+    #templates = new Map();
+    constructor() {
+        <%%templates%%>
+    }
+
+    public async render(name: string, handler: boolean = false) {
+        return this.#templates.get(name) || '';
+    }
+}
