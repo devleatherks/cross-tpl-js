@@ -93,13 +93,13 @@ class CrossTplCore {
             row.update(file, 'warning');
             let bodyReplace: string = bodyTemplate + '\n\r';
 
-            templatesWrapper = templatesWrapper.replace('<%%file_dir%%>', file.file);
+            templatesWrapper = templatesWrapper.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
             templatesWrapper = templatesWrapper.replace('<%%version%%>', String(file.mime.modified.getTime()));
             templatesWrapper = templatesWrapper.replace('<%%content%%>', file.mime.content);
 
             bodyReplace = bodyReplace.replace('<%%hash%%>', Md5.init(file.file.replace(this.#options.dirname + '/', '')));
             bodyReplace = bodyReplace.replace('<%%content%%>', Base64.encode(templatesWrapper));
-            bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file);
+            bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
             bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
             bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
             bodyReplace = bodyReplace.replace('<%%modified%%>', file.mime.modified.toISOString());

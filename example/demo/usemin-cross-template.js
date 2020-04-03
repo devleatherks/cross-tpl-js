@@ -196,42 +196,6 @@ var Md5 = /** @class */ (function () {
 }());
 
 //# sourceMappingURL=index.js.map
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
     if (!privateMap.has(receiver)) {
         throw new TypeError("attempted to get private field on non-instance");
@@ -261,47 +225,42 @@ var CrossTemplateClass = /** @class */ (function () {
         });
         _md5.set(this, void 0);
         /*!*************************************************************!*\
-  !*** Template: /var/www/cross-tpl/example/view/common/header.php:340 ***!
+  !*** Template: view/common/header.php:340 ***!
   !*** Create:   2020-03-12T12:16:00.092Z ***!
   !*** Modified: 2020-04-02T18:18:43.680Z ***!
   \*************************************************************/
-        __classPrivateFieldGet(this, _templates).set('66456aa6b8c31da65a17daf250e26fdd', "PCEtLS9vcGVuLyAvdmFyL3d3dy9jcm9zcy10cGwvZXhhbXBsZS92aWV3L2NvbW1vbi9oZWFkZXIucGhwIC8tLT4KPCEtLSB2ZXJzaW9uOiAxNTg1ODUxNTIzNjgwIC0tPgo8dWwgY2xhc3M9Im5hdiI+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgYWN0aXZlIiBocmVmPSIjIj5BY3RpdmU8L2E+CiAgPC9saT4KICA8bGkgY2xhc3M9Im5hdi1pdGVtIj4KICAgIDxhIGNsYXNzPSJuYXYtbGluayIgaHJlZj0iIyI+TGluazwvYT4KICA8L2xpPgogIDxsaSBjbGFzcz0ibmF2LWl0ZW0iPgogICAgPGEgY2xhc3M9Im5hdi1saW5rIiBocmVmPSIjIj5MaW5rPC9hPgogIDwvbGk+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgZGlzYWJsZWQiIGhyZWY9IiMiPkRpc2FibGVkPC9hPgogIDwvbGk+CjwvdWw+CjwhLS0vZW5kLyA8JSVmaWxlX2RpciUlPiAvLS0+");
+        __classPrivateFieldGet(this, _templates).set('66456aa6b8c31da65a17daf250e26fdd', "PCEtLS9vcGVuLyB2aWV3L2NvbW1vbi9oZWFkZXIucGhwIC8tLT4KPCEtLSB2ZXJzaW9uOiAxNTg1ODUxNTIzNjgwIC0tPgo8dWwgY2xhc3M9Im5hdiI+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgYWN0aXZlIiBocmVmPSIjIj5BY3RpdmU8L2E+CiAgPC9saT4KICA8bGkgY2xhc3M9Im5hdi1pdGVtIj4KICAgIDxhIGNsYXNzPSJuYXYtbGluayIgaHJlZj0iIyI+TGluazwvYT4KICA8L2xpPgogIDxsaSBjbGFzcz0ibmF2LWl0ZW0iPgogICAgPGEgY2xhc3M9Im5hdi1saW5rIiBocmVmPSIjIj5MaW5rPC9hPgogIDwvbGk+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgZGlzYWJsZWQiIGhyZWY9IiMiPkRpc2FibGVkPC9hPgogIDwvbGk+CjwvdWw+CjwhLS0vZW5kLyA8JSVmaWxlX2RpciUlPiAvLS0+");
         /*!*************************************************************!*\
-          !*** Template: /var/www/cross-tpl/example/view/index.html:1226 ***!
+          !*** Template: view/index.html:1226 ***!
           !*** Create:   2020-03-12T12:15:52.576Z ***!
           !*** Modified: 2020-04-03T13:25:58.961Z ***!
           \*************************************************************/
-        __classPrivateFieldGet(this, _templates).set('68382b9aa5b82414a20bf208bb1b0859', "PCEtLS9vcGVuLyAvdmFyL3d3dy9jcm9zcy10cGwvZXhhbXBsZS92aWV3L2NvbW1vbi9oZWFkZXIucGhwIC8tLT4KPCEtLSB2ZXJzaW9uOiAxNTg1ODUxNTIzNjgwIC0tPgo8dWwgY2xhc3M9Im5hdiI+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgYWN0aXZlIiBocmVmPSIjIj5BY3RpdmU8L2E+CiAgPC9saT4KICA8bGkgY2xhc3M9Im5hdi1pdGVtIj4KICAgIDxhIGNsYXNzPSJuYXYtbGluayIgaHJlZj0iIyI+TGluazwvYT4KICA8L2xpPgogIDxsaSBjbGFzcz0ibmF2LWl0ZW0iPgogICAgPGEgY2xhc3M9Im5hdi1saW5rIiBocmVmPSIjIj5MaW5rPC9hPgogIDwvbGk+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgZGlzYWJsZWQiIGhyZWY9IiMiPkRpc2FibGVkPC9hPgogIDwvbGk+CjwvdWw+CjwhLS0vZW5kLyAvdmFyL3d3dy9jcm9zcy10cGwvZXhhbXBsZS92aWV3L2luZGV4Lmh0bWwgLy0tPg==");
+        __classPrivateFieldGet(this, _templates).set('68382b9aa5b82414a20bf208bb1b0859', "PCEtLS9vcGVuLyB2aWV3L2NvbW1vbi9oZWFkZXIucGhwIC8tLT4KPCEtLSB2ZXJzaW9uOiAxNTg1ODUxNTIzNjgwIC0tPgo8dWwgY2xhc3M9Im5hdiI+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgYWN0aXZlIiBocmVmPSIjIj5BY3RpdmU8L2E+CiAgPC9saT4KICA8bGkgY2xhc3M9Im5hdi1pdGVtIj4KICAgIDxhIGNsYXNzPSJuYXYtbGluayIgaHJlZj0iIyI+TGluazwvYT4KICA8L2xpPgogIDxsaSBjbGFzcz0ibmF2LWl0ZW0iPgogICAgPGEgY2xhc3M9Im5hdi1saW5rIiBocmVmPSIjIj5MaW5rPC9hPgogIDwvbGk+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgZGlzYWJsZWQiIGhyZWY9IiMiPkRpc2FibGVkPC9hPgogIDwvbGk+CjwvdWw+CjwhLS0vZW5kLyB2aWV3L2luZGV4Lmh0bWwgLy0tPg==");
         /*!*************************************************************!*\
-          !*** Template: /var/www/cross-tpl/example/view/main/home.blade.php:15151 ***!
+          !*** Template: view/main/home.blade.php:15151 ***!
           !*** Create:   2020-03-12T12:15:57.844Z ***!
           !*** Modified: 2020-04-02T18:18:43.680Z ***!
           \*************************************************************/
-        __classPrivateFieldGet(this, _templates).set('eb68698052763504f55b96b6d89f404c', "PCEtLS9vcGVuLyAvdmFyL3d3dy9jcm9zcy10cGwvZXhhbXBsZS92aWV3L2NvbW1vbi9oZWFkZXIucGhwIC8tLT4KPCEtLSB2ZXJzaW9uOiAxNTg1ODUxNTIzNjgwIC0tPgo8dWwgY2xhc3M9Im5hdiI+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgYWN0aXZlIiBocmVmPSIjIj5BY3RpdmU8L2E+CiAgPC9saT4KICA8bGkgY2xhc3M9Im5hdi1pdGVtIj4KICAgIDxhIGNsYXNzPSJuYXYtbGluayIgaHJlZj0iIyI+TGluazwvYT4KICA8L2xpPgogIDxsaSBjbGFzcz0ibmF2LWl0ZW0iPgogICAgPGEgY2xhc3M9Im5hdi1saW5rIiBocmVmPSIjIj5MaW5rPC9hPgogIDwvbGk+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgZGlzYWJsZWQiIGhyZWY9IiMiPkRpc2FibGVkPC9hPgogIDwvbGk+CjwvdWw+CjwhLS0vZW5kLyAvdmFyL3d3dy9jcm9zcy10cGwvZXhhbXBsZS92aWV3L2luZGV4Lmh0bWwgLy0tPg==");
+        __classPrivateFieldGet(this, _templates).set('eb68698052763504f55b96b6d89f404c', "PCEtLS9vcGVuLyB2aWV3L2NvbW1vbi9oZWFkZXIucGhwIC8tLT4KPCEtLSB2ZXJzaW9uOiAxNTg1ODUxNTIzNjgwIC0tPgo8dWwgY2xhc3M9Im5hdiI+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgYWN0aXZlIiBocmVmPSIjIj5BY3RpdmU8L2E+CiAgPC9saT4KICA8bGkgY2xhc3M9Im5hdi1pdGVtIj4KICAgIDxhIGNsYXNzPSJuYXYtbGluayIgaHJlZj0iIyI+TGluazwvYT4KICA8L2xpPgogIDxsaSBjbGFzcz0ibmF2LWl0ZW0iPgogICAgPGEgY2xhc3M9Im5hdi1saW5rIiBocmVmPSIjIj5MaW5rPC9hPgogIDwvbGk+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgZGlzYWJsZWQiIGhyZWY9IiMiPkRpc2FibGVkPC9hPgogIDwvbGk+CjwvdWw+CjwhLS0vZW5kLyB2aWV3L2luZGV4Lmh0bWwgLy0tPg==");
         /*!*************************************************************!*\
-          !*** Template: /var/www/cross-tpl/example/view/main/text.php:4 ***!
+          !*** Template: view/main/text.php:4 ***!
           !*** Create:   2020-04-03T13:56:36.295Z ***!
           !*** Modified: 2020-04-03T13:56:39.079Z ***!
           \*************************************************************/
-        __classPrivateFieldGet(this, _templates).set('1fa19149f2641188b20f581c81f186c7', "PCEtLS9vcGVuLyAvdmFyL3d3dy9jcm9zcy10cGwvZXhhbXBsZS92aWV3L2NvbW1vbi9oZWFkZXIucGhwIC8tLT4KPCEtLSB2ZXJzaW9uOiAxNTg1ODUxNTIzNjgwIC0tPgo8dWwgY2xhc3M9Im5hdiI+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgYWN0aXZlIiBocmVmPSIjIj5BY3RpdmU8L2E+CiAgPC9saT4KICA8bGkgY2xhc3M9Im5hdi1pdGVtIj4KICAgIDxhIGNsYXNzPSJuYXYtbGluayIgaHJlZj0iIyI+TGluazwvYT4KICA8L2xpPgogIDxsaSBjbGFzcz0ibmF2LWl0ZW0iPgogICAgPGEgY2xhc3M9Im5hdi1saW5rIiBocmVmPSIjIj5MaW5rPC9hPgogIDwvbGk+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgZGlzYWJsZWQiIGhyZWY9IiMiPkRpc2FibGVkPC9hPgogIDwvbGk+CjwvdWw+CjwhLS0vZW5kLyAvdmFyL3d3dy9jcm9zcy10cGwvZXhhbXBsZS92aWV3L2luZGV4Lmh0bWwgLy0tPg==");
+        __classPrivateFieldGet(this, _templates).set('1fa19149f2641188b20f581c81f186c7', "PCEtLS9vcGVuLyB2aWV3L2NvbW1vbi9oZWFkZXIucGhwIC8tLT4KPCEtLSB2ZXJzaW9uOiAxNTg1ODUxNTIzNjgwIC0tPgo8dWwgY2xhc3M9Im5hdiI+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgYWN0aXZlIiBocmVmPSIjIj5BY3RpdmU8L2E+CiAgPC9saT4KICA8bGkgY2xhc3M9Im5hdi1pdGVtIj4KICAgIDxhIGNsYXNzPSJuYXYtbGluayIgaHJlZj0iIyI+TGluazwvYT4KICA8L2xpPgogIDxsaSBjbGFzcz0ibmF2LWl0ZW0iPgogICAgPGEgY2xhc3M9Im5hdi1saW5rIiBocmVmPSIjIj5MaW5rPC9hPgogIDwvbGk+CiAgPGxpIGNsYXNzPSJuYXYtaXRlbSI+CiAgICA8YSBjbGFzcz0ibmF2LWxpbmsgZGlzYWJsZWQiIGhyZWY9IiMiPkRpc2FibGVkPC9hPgogIDwvbGk+CjwvdWw+CjwhLS0vZW5kLyB2aWV3L2luZGV4Lmh0bWwgLy0tPg==");
     }
     CrossTemplateClass.prototype.render = function (name, handler) {
         if (handler === void 0) { handler = false; }
-        return __awaiter(this, void 0, void 0, function () {
-            var content;
-            return __generator(this, function (_a) {
-                if (__classPrivateFieldGet(this, _options).dirHash) {
-                    name = Md5.init(name);
-                }
-                content = __classPrivateFieldGet(this, _templates).get(name);
-                if (__classPrivateFieldGet(this, _options).contentBase64) {
-                    content = decodeURIComponent(atob(content).split('').map(function (c) {
-                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-                }
-                return [2 /*return*/, content || ''];
-            });
-        });
+        if (__classPrivateFieldGet(this, _options).dirHash) {
+            name = Md5.init(name);
+        }
+        var content = __classPrivateFieldGet(this, _templates).get(name) || '';
+        if (__classPrivateFieldGet(this, _options).contentBase64 && content) {
+            content = decodeURIComponent(atob(content).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+        return content || '';
     };
     CrossTemplateClass.setMD5 = function (md5) {
         __classPrivateFieldSet(this, _md5, md5);
@@ -309,6 +268,6 @@ var CrossTemplateClass = /** @class */ (function () {
     return CrossTemplateClass;
 }());
 _templates = new WeakMap(), _options = new WeakMap(), _md5 = new WeakMap();
-if (md5 !== undefined) {
+if (typeof md5 !== 'undefined') {
     CrossTemplateClass.setMD5(md5);
 }

@@ -17,14 +17,14 @@ class CrossTemplateClass {
         <%%templates%%>
     }
 
-    public async render(name: string, handler: boolean = false) {
+    public render(name: string, handler: boolean = false) {
         if(this.#options.dirHash) {
             name = Md5.init(name);
         }
 
-        let content = this.#templates.get(name);
+        let content = this.#templates.get(name) || '';
 
-        if(this.#options.contentBase64) {
+        if(this.#options.contentBase64 && content) {
             content = decodeURIComponent(atob(content).split('').map(function(c) {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
@@ -38,6 +38,6 @@ class CrossTemplateClass {
     }
 }
 
-if(md5 !== undefined) {
+if(typeof md5 !== 'undefined') {
     CrossTemplateClass.setMD5(md5);
 }

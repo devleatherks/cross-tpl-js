@@ -56,7 +56,7 @@ class CrossTpl {
         __classPrivateFieldGet(this, _core).buildTsToJs(outDirTCross, outDir).then(() => {
             fs.writeFileSync(outDirTCross.replace('.ts', '.js'), __classPrivateFieldGet(this, _core).generateTemplateBase(outDirTCross.replace('.ts', '.js')));
         });
-        row.success('ross-tpl assembled', 'white_check_mark');
+        row.success('Cross-tpl assembled', 'white_check_mark');
     }
 }
 exports.CrossTpl = CrossTpl;
@@ -96,12 +96,12 @@ class CrossTplCore {
         filesContent.forEach((file) => __awaiter(this, void 0, void 0, function* () {
             row.update(file, 'warning');
             let bodyReplace = bodyTemplate + '\n\r';
-            templatesWrapper = templatesWrapper.replace('<%%file_dir%%>', file.file);
+            templatesWrapper = templatesWrapper.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
             templatesWrapper = templatesWrapper.replace('<%%version%%>', String(file.mime.modified.getTime()));
             templatesWrapper = templatesWrapper.replace('<%%content%%>', file.mime.content);
             bodyReplace = bodyReplace.replace('<%%hash%%>', md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', '')));
             bodyReplace = bodyReplace.replace('<%%content%%>', js_base64_1.Base64.encode(templatesWrapper));
-            bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file);
+            bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
             bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
             bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
             bodyReplace = bodyReplace.replace('<%%modified%%>', file.mime.modified.toISOString());
