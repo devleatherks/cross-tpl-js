@@ -6,6 +6,9 @@ export interface CrossTplConstructorOptions {
     outDir?: string
     templatesBody?: string
     templatesMain?: string
+    templatesWrapper?: string
+    contentBase64?: boolean
+    dirHash?: boolean
 }
 
 export interface CrossTplFilesContentObject {

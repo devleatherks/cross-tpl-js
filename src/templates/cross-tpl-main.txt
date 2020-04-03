@@ -1,10 +1,43 @@
-class CrossJSTemplate {
+/**
+ * Cross JS Template
+ * 
+ * @class CrossJSTemplate 
+ * @link usemint.com
+ */
+class CrossTemplateClass {
     #templates = new Map();
+    #options = {
+        contentBase64: <%%contentBase64%%>,
+        dirHash: <%%dirHash%%>
+    }
+
+    #md5 = void 0;
+
     constructor() {
         <%%templates%%>
     }
 
     public async render(name: string, handler: boolean = false) {
-        return this.#templates.get(name) || '';
+        if(this.#options.dirHash) {
+            name = Md5.init(name);
+        }
+
+        let content = this.#templates.get(name);
+
+        if(this.#options.contentBase64) {
+            content = decodeURIComponent(atob(content).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+        return content || '';
+    } 
+
+    public static setMD5(md5): any {
+        this.#md5 = md5;
     }
+}
+
+if(md5 !== undefined) {
+    CrossTemplateClass.setMD5(md5);
 }

@@ -25,6 +25,10 @@ var _core, _debug, _options, _optionsDebug;
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const nodePathModule = require("path");
+const js_base64_1 = require("js-base64");
+const md5_typescript_1 = require("md5-typescript");
+const Steps_1 = require("./Steps");
+const { spawn } = require("child_process");
 class CrossTpl {
     constructor(options) {
         _core.set(this, void 0);
@@ -32,15 +36,27 @@ class CrossTpl {
         __classPrivateFieldGet(this, _core).options = options;
     }
     build() {
-        const files = __classPrivateFieldGet(this, _core).getTemplateFiles();
+        const steps = new Steps_1.Steps(5);
+        const files = __classPrivateFieldGet(this, _core).getTemplateFiles(false, steps);
         if (files.length === 0) {
             throw new TypeError(`CrossTpl: Files not available or no files [${files.join()}]`);
         }
-        const filesMime = __classPrivateFieldGet(this, _core).getFilesContent(files);
-        const body = __classPrivateFieldGet(this, _core).generateTemplateBody(filesMime);
+        const filesMime = __classPrivateFieldGet(this, _core).getFilesContent(files, [], steps);
+        const body = __classPrivateFieldGet(this, _core).generateTemplateBody(filesMime, steps);
         const main = __classPrivateFieldGet(this, _core).generateTemplateMain(body);
-        const outDir = __classPrivateFieldGet(this, _core).getOptions('dirname') + '/' + (__classPrivateFieldGet(this, _core).getOptions('outDir') || 'cross-template.ts');
-        console.log(fs.writeFileSync(outDir, main));
+        let row = steps.advance('Engine assembly', 'recycle').start();
+        const outDirTCross = __classPrivateFieldGet(this, _core).getOptions('dirname')
+            + '/'
+            + 'usemin-cross-template.ts';
+        const outDir = __classPrivateFieldGet(this, _core).getOptions('dirname')
+            + '/'
+            + (__classPrivateFieldGet(this, _core).getOptions('outDir') || '');
+        fs.writeFileSync(outDirTCross, main);
+        row.update('Code generation');
+        __classPrivateFieldGet(this, _core).buildTsToJs(outDirTCross, outDir).then(() => {
+            fs.writeFileSync(outDirTCross.replace('.ts', '.js'), __classPrivateFieldGet(this, _core).generateTemplateBase(outDirTCross.replace('.ts', '.js')));
+        });
+        row.success('ross-tpl assembled', 'white_check_mark');
     }
 }
 exports.CrossTpl = CrossTpl;
@@ -63,6 +79,10 @@ class CrossTplCore {
             outDir: void 0,
             templatesBody: __dirname + '/templates/cross-tpl-body.txt',
             templatesMain: __dirname + '/templates/cross-tpl-main.txt',
+            templatesBase: __dirname + '/templates/cross-tpl-base.txt',
+            templatesWrapper: __dirname + '/templates/cross-tpl-wrapper.txt',
+            contentBase64: true,
+            dirHash: true
         });
         /**
          * @var {boolean} debug
@@ -70,23 +90,49 @@ class CrossTplCore {
          */
         _optionsDebug.set(this, []);
     }
-    generateTemplateBody(filesContent) {
-        let bodyTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBody, 'utf8'), body = new String().toString();
+    generateTemplateBody(filesContent, steps) {
+        let bodyTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBody, 'utf8'), templatesWrapper = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesWrapper, 'utf8'), body = (new String()).toString();
+        const row = steps.advance('Template Packing', 'mag').start();
         filesContent.forEach((file) => __awaiter(this, void 0, void 0, function* () {
+            row.update(file, 'warning');
             let bodyReplace = bodyTemplate + '\n\r';
-            bodyReplace = bodyReplace.replace('<%%hash%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
-            bodyReplace = bodyReplace.replace('<%%content%%>', file.mime.content);
+            templatesWrapper = templatesWrapper.replace('<%%file_dir%%>', file.file);
+            templatesWrapper = templatesWrapper.replace('<%%version%%>', String(file.mime.modified.getTime()));
+            templatesWrapper = templatesWrapper.replace('<%%content%%>', file.mime.content);
+            bodyReplace = bodyReplace.replace('<%%hash%%>', md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', '')));
+            bodyReplace = bodyReplace.replace('<%%content%%>', js_base64_1.Base64.encode(templatesWrapper));
             bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file);
             bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
             bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
             bodyReplace = bodyReplace.replace('<%%modified%%>', file.mime.modified.toISOString());
             body += bodyReplace;
         }));
+        row.success('Templates successfully packaged', 'white_check_mark');
         return body;
     }
     generateTemplateMain(body) {
         let mainTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesMain, 'utf8');
+        mainTemplate = mainTemplate.replace('<%%contentBase64%%>', this.getOptions('contentBase64'));
+        mainTemplate = mainTemplate.replace('<%%dirHash%%>', this.getOptions('contentBase64'));
         return mainTemplate.replace('<%%templates%%>', body);
+    }
+    generateTemplateBase(dir) {
+        console.log(dir);
+        let mainTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBase, 'utf8');
+        mainTemplate = mainTemplate.replace('<%%md5%%>', fs.readFileSync(__dirname + '/../node_modules/md5-typescript/dist/index.js', 'utf8'));
+        mainTemplate = mainTemplate.replace('export { Md5 };', '');
+        return mainTemplate.replace('<%%cross-js%%>', fs.readFileSync(dir, 'utf8'));
+    }
+    buildTsToJs(dirFile, outDir) {
+        return new Promise((ev) => {
+            const ls = spawn("tsc", [dirFile]);
+            ls.stdout.on("data", (data) => {
+                ev();
+            });
+            ls.stderr.on('data', (data) => {
+                console.error(`stderr: ${data.toString()}`);
+            });
+        });
     }
     /**
      * Setting kernel settings
@@ -109,20 +155,29 @@ class CrossTplCore {
     getOptions(name) {
         return name in __classPrivateFieldGet(this, _options) ? __classPrivateFieldGet(this, _options)[name] : false;
     }
-    getFilesContent(directives, fileMime = []) {
+    getFilesContent(directives, fileMime = [], steps) {
+        const row = steps.advance('Pattern data collection', 'mag').start();
         directives.forEach((path) => {
-            const stats = fs.statSync(path);
-            fileMime.push({
-                file: path,
-                mime: {
-                    type: nodePathModule.extname(path),
-                    content: fs.readFileSync(path, 'utf8'),
-                    create: stats.birthtime,
-                    modified: stats.atime,
-                    size: stats.size,
-                }
-            });
+            try {
+                const stats = fs.statSync(path);
+                row.update(path, 'white_check_mark');
+                fileMime.push({
+                    file: path,
+                    mime: {
+                        type: nodePathModule.extname(path),
+                        content: fs.readFileSync(path, 'utf8'),
+                        create: stats.birthtime,
+                        modified: stats.atime,
+                        size: stats.size,
+                    }
+                });
+            }
+            catch (error) {
+                row.error('Information about fellow files', 'x');
+                throw new Error(error);
+            }
         });
+        row.success('All data collected', 'white_check_mark');
         return fileMime;
     }
     /**
@@ -131,9 +186,12 @@ class CrossTplCore {
      * @param {string} templateDir
      * @returns {Array<string>}
      */
-    getTemplateFiles(templateDir = false) {
+    getTemplateFiles(templateDir = false, steps) {
+        const row = steps.advance('Collection template in the specified folder').start();
         templateDir = templateDir || this.getOption('dirname') + '/' + this.getOption('templates');
-        return CrossTplCore.getFilesRecursively(String(templateDir)) || [];
+        const files = this.getFilesRecursively(String(templateDir), [], 0) || [];
+        row.success(`Files collected - ${files.length}`, 'white_check_mark');
+        return files;
     }
     /**
      * Get Option
@@ -157,7 +215,7 @@ class CrossTplCore {
      * @throws {TypeError}
      * @returns {Array<string>}
      */
-    static getFilesRecursively(dir, files = [], iteration = 0) {
+    getFilesRecursively(dir, files = [], iteration = 0) {
         const objects = fs.readdirSync(dir);
         if (objects.length === 0 && iteration === 0) {
             throw new TypeError(`CrossTpl: No patterns [${dir}]`);
@@ -173,7 +231,6 @@ class CrossTplCore {
         }
         return files;
     }
-    ;
 }
 _debug = new WeakMap(), _options = new WeakMap(), _optionsDebug = new WeakMap();
 //# sourceMappingURL=CrossTpl.js.map
