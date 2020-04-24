@@ -29,6 +29,8 @@ const js_base64_1 = require("js-base64");
 const md5_typescript_1 = require("md5-typescript");
 const Steps_1 = require("./Steps");
 const { spawn } = require("child_process");
+var gulp = require("gulp");
+var ts = require("gulp-typescript");
 class CrossTpl {
     constructor(options) {
         _core.set(this, void 0);
@@ -54,9 +56,10 @@ class CrossTpl {
         fs.writeFileSync(outDirTCross, main);
         row.update('Code generation');
         __classPrivateFieldGet(this, _core).buildTsToJs(outDirTCross, outDir).then(() => {
-            fs.writeFileSync(outDirTCross.replace('.ts', '.js'), __classPrivateFieldGet(this, _core).generateTemplateBase(outDirTCross.replace('.ts', '.js')));
+            row.update('Build Code');
+            fs.writeFileSync(outDir + '/usemin-cross-template.js', __classPrivateFieldGet(this, _core).generateTemplateBase(outDir + '/' + 'usemin-cross-template.js'));
+            row.success('Cross-tpl assembled', 'white_check_mark');
         });
-        row.success('Cross-tpl assembled', 'white_check_mark');
     }
 }
 exports.CrossTpl = CrossTpl;
@@ -80,6 +83,7 @@ class CrossTplCore {
             templatesBody: __dirname + '/templates/cross-tpl-body.txt',
             templatesMain: __dirname + '/templates/cross-tpl-main.txt',
             templatesBase: __dirname + '/templates/cross-tpl-base.txt',
+            templatesModule: __dirname + '/templates/cross-tpl-module.txt',
             templatesWrapper: __dirname + '/templates/cross-tpl-wrapper.txt',
             contentBase64: true,
             dirHash: true
@@ -96,11 +100,12 @@ class CrossTplCore {
         filesContent.forEach((file) => __awaiter(this, void 0, void 0, function* () {
             row.update(file, 'warning');
             let bodyReplace = bodyTemplate + '\n\r';
-            templatesWrapper = templatesWrapper.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
-            templatesWrapper = templatesWrapper.replace('<%%version%%>', String(file.mime.modified.getTime()));
-            templatesWrapper = templatesWrapper.replace('<%%content%%>', file.mime.content);
+            let contact = templatesWrapper;
+            contact = contact.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
+            contact = contact.replace('<%%version%%>', String(file.mime.modified.getTime()));
+            contact = contact.replace('<%%content%%>', file.mime.content);
             bodyReplace = bodyReplace.replace('<%%hash%%>', md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', '')));
-            bodyReplace = bodyReplace.replace('<%%content%%>', js_base64_1.Base64.encode(templatesWrapper));
+            bodyReplace = bodyReplace.replace('<%%content%%>', js_base64_1.Base64.encode(contact));
             bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
             bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
             bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
@@ -117,20 +122,30 @@ class CrossTplCore {
         return mainTemplate.replace('<%%templates%%>', body);
     }
     generateTemplateBase(dir) {
-        console.log(dir);
         let mainTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBase, 'utf8');
+        let moduleBody = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesModule, 'utf8');
         mainTemplate = mainTemplate.replace('<%%md5%%>', fs.readFileSync(__dirname + '/../node_modules/md5-typescript/dist/index.js', 'utf8'));
         mainTemplate = mainTemplate.replace('export { Md5 };', '');
-        return mainTemplate.replace('<%%cross-js%%>', fs.readFileSync(dir, 'utf8'));
+        mainTemplate = mainTemplate.replace('<%%cross-js%%>', fs.readFileSync(dir, 'utf8'));
+        return moduleBody.replace('<%%body%%>', mainTemplate);
     }
     buildTsToJs(dirFile, outDir) {
         return new Promise((ev) => {
-            const ls = spawn("tsc", [dirFile]);
-            ls.stdout.on("data", (data) => {
+            gulp.src(dirFile)
+                .pipe(ts({
+                "target": "es2015",
+                "module": "CommonJS",
+                "moduleResolution": "node",
+                "strict": true,
+                "noImplicitAny": true,
+                "sourceMap": true,
+                "experimentalDecorators": true,
+                "declaration": true,
+                "typeRoots": [
+                    "./node_modules/@types"
+                ],
+            })).pipe(gulp.dest(outDir)).on("end", (data) => {
                 ev();
-            });
-            ls.stderr.on('data', (data) => {
-                console.error(`stderr: ${data.toString()}`);
             });
         });
     }

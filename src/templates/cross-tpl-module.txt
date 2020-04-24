@@ -1,0 +1,5 @@
+(function(window) {
+    <%%body%%>
+
+    window.crossTpl = new CrossTemplateClass();
+})(window);

@@ -1,3 +1,9 @@
+declare class Md5 {
+    static init(name: string): any
+}
+
+declare function md5(): () => any;
+
 /**
  * Cross JS Template
  * 
@@ -11,7 +17,7 @@ class CrossTemplateClass {
         dirHash: <%%dirHash%%>
     }
 
-    #md5 = void 0;
+    public static md5 = void 0;
 
     constructor() {
         <%%templates%%>
@@ -33,8 +39,8 @@ class CrossTemplateClass {
         return content || '';
     } 
 
-    public static setMD5(md5): any {
-        this.#md5 = md5;
+    public static setMD5(md5: any): any {
+        CrossTemplateClass.md5 = md5;
     }
 }
 

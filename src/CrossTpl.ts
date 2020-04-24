@@ -5,6 +5,8 @@ import { Base64 } from 'js-base64';
 import { Md5 } from "md5-typescript";
 import { Steps, RawSteps, RawStep } from "./Steps";
 const { spawn } = require("child_process");
+var gulp = require("gulp");
+var ts = require("gulp-typescript");
 
 export class CrossTpl {
     #core: CrossTplCore;
@@ -42,13 +44,15 @@ export class CrossTpl {
         row.update('Code generation');
 
         this.#core.buildTsToJs(outDirTCross, outDir).then(() => {
-            fs.writeFileSync(
-                outDirTCross.replace('.ts', '.js'),
-                this.#core.generateTemplateBase(outDirTCross.replace('.ts', '.js'))
-            );
-        });
+            row.update('Build Code');
 
-        row.success('Cross-tpl assembled', 'white_check_mark');
+            fs.writeFileSync(
+                outDir + '/usemin-cross-template.js',
+                this.#core.generateTemplateBase(outDir + '/' + 'usemin-cross-template.js'),
+            );
+            
+            row.success('Cross-tpl assembled', 'white_check_mark');
+        });
     }
 }
 
@@ -71,6 +75,7 @@ class CrossTplCore {
         templatesBody: __dirname + '/templates/cross-tpl-body.txt',
         templatesMain: __dirname + '/templates/cross-tpl-main.txt',
         templatesBase: __dirname + '/templates/cross-tpl-base.txt',
+        templatesModule: __dirname + '/templates/cross-tpl-module.txt',
         templatesWrapper: __dirname + '/templates/cross-tpl-wrapper.txt',
         contentBase64: true,
         dirHash: true
@@ -93,12 +98,14 @@ class CrossTplCore {
             row.update(file, 'warning');
             let bodyReplace: string = bodyTemplate + '\n\r';
 
-            templatesWrapper = templatesWrapper.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
-            templatesWrapper = templatesWrapper.replace('<%%version%%>', String(file.mime.modified.getTime()));
-            templatesWrapper = templatesWrapper.replace('<%%content%%>', file.mime.content);
+            let contact = templatesWrapper;
+
+            contact = contact.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
+            contact = contact.replace('<%%version%%>', String(file.mime.modified.getTime()));
+            contact = contact.replace('<%%content%%>', file.mime.content);
 
             bodyReplace = bodyReplace.replace('<%%hash%%>', Md5.init(file.file.replace(this.#options.dirname + '/', '')));
-            bodyReplace = bodyReplace.replace('<%%content%%>', Base64.encode(templatesWrapper));
+            bodyReplace = bodyReplace.replace('<%%content%%>', Base64.encode(contact));
             bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
             bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
             bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
@@ -114,30 +121,45 @@ class CrossTplCore {
 
     public generateTemplateMain(body: string) {
         let mainTemplate = fs.readFileSync(<string>this.#options.templatesMain, 'utf8');
+
         mainTemplate = mainTemplate.replace('<%%contentBase64%%>', this.getOptions('contentBase64'));
         mainTemplate = mainTemplate.replace('<%%dirHash%%>', this.getOptions('contentBase64'));
+
         return mainTemplate.replace('<%%templates%%>', body);
     }
 
     public generateTemplateBase(dir: string) {
-        console.log(dir);
         let mainTemplate = fs.readFileSync(<string>this.#options.templatesBase, 'utf8');
+        let moduleBody = fs.readFileSync(<string>this.#options.templatesModule, 'utf8');
+
         mainTemplate = mainTemplate.replace(
             '<%%md5%%>',
             fs.readFileSync(__dirname + '/../node_modules/md5-typescript/dist/index.js', 'utf8')
         );
+
         mainTemplate = mainTemplate.replace('export { Md5 };', '');
-        return mainTemplate.replace('<%%cross-js%%>', fs.readFileSync(dir, 'utf8'));
+        mainTemplate = mainTemplate.replace('<%%cross-js%%>', fs.readFileSync(dir, 'utf8'));
+
+        return moduleBody.replace('<%%body%%>', mainTemplate);
     }
 
     public buildTsToJs(dirFile: string, outDir: string): Promise<any> {
         return new Promise((ev) => {
-            const ls = spawn("tsc", [dirFile]);
-            ls.stdout.on("data", (data: any) => {
+            gulp.src(dirFile)
+            .pipe(ts({
+                "target": "es2015",
+                "module": "CommonJS",
+                "moduleResolution": "node",
+                "strict": true,
+                "noImplicitAny": true,
+                "sourceMap": true,
+                "experimentalDecorators": true,
+                "declaration": true,
+                "typeRoots": [
+                  "./node_modules/@types"
+                ],
+            })).pipe(gulp.dest(outDir)).on("end", (data: any) => {
                 ev();
-            });
-            ls.stderr.on('data', (data: any) => {
-                console.error(`stderr: ${data.toString()}`);
             });
         })
     }
