@@ -6,4 +6,5 @@ const crossTpl = new CrossTpl({
     outDir: 'demo'
 });
 
-crossTpl.build();
+// crossTpl.build();
+crossTpl.watch();

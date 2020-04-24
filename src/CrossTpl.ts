@@ -6,6 +6,7 @@ import { Md5 } from "md5-typescript";
 import { Steps, RawSteps, RawStep } from "./Steps";
 const { spawn } = require("child_process");
 var gulp = require("gulp");
+var watch = require("gulp-watch");
 var ts = require("gulp-typescript");
 
 export class CrossTpl {
@@ -18,41 +19,84 @@ export class CrossTpl {
 
     public build() {
         const steps = new Steps(5);
-        
+
         const files = this.#core.getTemplateFiles(false, steps);
 
         if (files.length === 0) {
             throw new TypeError(`CrossTpl: Files not available or no files [${files.join()}]`);
         }
 
-        const filesMime = this.#core.getFilesContent(files, [],  steps);
+        return this.isUpload() ? this.upload(files, steps) : this.create(files, steps);
+    }
 
-        const body = this.#core.generateTemplateBody(filesMime,  steps);
+    private create(files: Array<string>, steps: any) {
+        const filesMime = this.#core.getFilesContent(files, [], steps);
+
+        const body = this.#core.generateTemplateBody(filesMime, steps);
         const main = this.#core.generateTemplateMain(body);
 
         let row = steps.advance('Engine assembly', 'recycle').start();
 
-        const outDirTCross = this.#core.getOptions('dirname')
-            + '/'
-            + 'usemin-cross-template.ts';
-        const outDir = this.#core.getOptions('dirname')
-            + '/'
-            + (this.#core.getOptions('outDir') || '');
-
-        fs.writeFileSync(outDirTCross, main);
+        fs.writeFileSync(this.outDirTs(), main);
 
         row.update('Code generation');
 
-        this.#core.buildTsToJs(outDirTCross, outDir).then(() => {
+        this.#core.buildTsToJs(this.outDirTs(), this.outDir()).then(() => {
             row.update('Build Code');
 
             fs.writeFileSync(
-                outDir + '/usemin-cross-template.js',
-                this.#core.generateTemplateBase(outDir + '/' + 'usemin-cross-template.js'),
+                this.outDirJs(),
+                this.#core.generateTemplateBase(this.outDirJs()),
             );
-            
+
             row.success('Cross-tpl assembled', 'white_check_mark');
         });
+    }
+
+    public watch() {
+        const steps = new Steps(5);
+        
+        watch(this.#core.getOption('dirname') + '/' + this.#core.getOption('templates') + '/**/*', (file: any) => {
+            this.upload([file.path], steps);
+        });
+    }
+    
+    private upload(files: Array<string>, steps: any) {
+        
+        const filesMime = this.#core.getFilesContent(files, [], steps);
+
+        let row = steps.advance('Templates upload', 'recycle').start();
+
+        fs.writeFileSync(this.outDirJs(), this.#core.replaceTemplateBody(this.outDirJs(), filesMime));
+
+        row.success('Cross-tpl upload', 'white_check_mark');
+    }
+
+    public outDir() {
+        return this.#core.getOptions('dirname') + '/' + (this.#core.getOptions('outDir') || '');
+    }
+
+    public outDirJs() {
+        return this.outDir() + '/' + 'usemin-cross-template.js';
+    }
+
+    public outDirTs() {
+        return this.outDir() + '/' + 'usemin-cross-template.ts';
+    }
+
+    public isSourceJs(): boolean {
+        if (fs.existsSync(this.outDirJs())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public isUpload(): boolean {
+        if (this.#core.getOptions('upload') && this.isSourceJs()) {
+            return true;
+        }
+        return false;
     }
 }
 
@@ -78,6 +122,7 @@ class CrossTplCore {
         templatesModule: __dirname + '/templates/cross-tpl-module.txt',
         templatesWrapper: __dirname + '/templates/cross-tpl-wrapper.txt',
         contentBase64: true,
+        upload: true,
         dirHash: true
     };
 
@@ -87,7 +132,7 @@ class CrossTplCore {
      */
     #optionsDebug: Array<string> = [];
 
-    public generateTemplateBody<T extends CrossTplFilesContentObject>(filesContent: Array<T>,  steps: any): string {
+    public generateTemplateBody<T extends CrossTplFilesContentObject>(filesContent: Array<T>, steps: any): string {
         let bodyTemplate = fs.readFileSync(<string>this.#options.templatesBody, 'utf8'),
             templatesWrapper = fs.readFileSync(<string>this.#options.templatesWrapper, 'utf8'),
             body: string = (new String()).toString();
@@ -104,7 +149,7 @@ class CrossTplCore {
             contact = contact.replace('<%%version%%>', String(file.mime.modified.getTime()));
             contact = contact.replace('<%%content%%>', file.mime.content);
 
-            bodyReplace = bodyReplace.replace('<%%hash%%>', Md5.init(file.file.replace(this.#options.dirname + '/', '')));
+            bodyReplace = bodyReplace.replace(new RegExp('\\<%%hash%%\\>', 'g'), Md5.init(file.file.replace(this.#options.dirname + '/', '')));
             bodyReplace = bodyReplace.replace('<%%content%%>', Base64.encode(contact));
             bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
             bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
@@ -117,6 +162,21 @@ class CrossTplCore {
         row.success('Templates successfully packaged', 'white_check_mark');
 
         return body;
+    }
+
+    public replaceTemplateBody<T extends CrossTplFilesContentObject>(crossTemplatePath: string, filesContent:  Array<T>) {
+        let template = fs.readFileSync(<string>crossTemplatePath, 'utf8');
+
+        filesContent.forEach(async (file: T) => {
+            let hash = Md5.init(file.file.replace(this.#options.dirname + '/', ''));
+
+            template = template.replace(
+                new RegExp(`\\/\\*\\*${hash}\\*\\*.*\\/\\*\\*-${hash}\\*\\*\\/`, "gm"), 
+                `/**${hash}**/\`${Base64.encode(file.mime.content)}\`/**-${hash}**/`
+            );
+        });
+
+        return template;
     }
 
     public generateTemplateMain(body: string) {
@@ -146,21 +206,21 @@ class CrossTplCore {
     public buildTsToJs(dirFile: string, outDir: string): Promise<any> {
         return new Promise((ev) => {
             gulp.src(dirFile)
-            .pipe(ts({
-                "target": "es2015",
-                "module": "CommonJS",
-                "moduleResolution": "node",
-                "strict": true,
-                "noImplicitAny": true,
-                "sourceMap": true,
-                "experimentalDecorators": true,
-                "declaration": true,
-                "typeRoots": [
-                  "./node_modules/@types"
-                ],
-            })).pipe(gulp.dest(outDir)).on("end", (data: any) => {
-                ev();
-            });
+                .pipe(ts({
+                    "target": "es2015",
+                    "module": "CommonJS",
+                    "moduleResolution": "node",
+                    "strict": true,
+                    "noImplicitAny": true,
+                    "sourceMap": true,
+                    "experimentalDecorators": true,
+                    "declaration": true,
+                    "typeRoots": [
+                        "./node_modules/@types"
+                    ],
+                })).pipe(gulp.dest(outDir)).on("end", (data: any) => {
+                    ev();
+                });
         })
     }
 
@@ -205,8 +265,8 @@ class CrossTplCore {
                         modified: stats.atime,
                         size: stats.size,
                     }
-                }); 
-                
+                });
+
             } catch (error) {
                 row.error('Information about fellow files', 'x');
                 throw new Error(error);
@@ -226,7 +286,7 @@ class CrossTplCore {
      */
     public getTemplateFiles(templateDir: string | boolean = false, steps: any): Array<string> {
         const row = steps.advance('Collection template in the specified folder').start();
-        
+
         templateDir = templateDir || this.getOption('dirname') + '/' + this.getOption('templates');
 
         const files = this.getFilesRecursively(String(templateDir), [], 0) || [];
