@@ -22,7 +22,7 @@ class CrossTplCore {
  * @class CrossJSTemplate 
  * @link usemint.com
  */
-export class CrossTemplateClass {
+export class CrossTemplates {
     
 
     public static md5 = void 0;
@@ -48,10 +48,10 @@ export class CrossTemplateClass {
     } 
 
     public static setMD5(md5: any): any {
-        CrossTemplateClass.md5 = md5;
+        CrossTemplates.md5 = md5;
     }
 }
 
 if(typeof md5 !== 'undefined') {
-    CrossTemplateClass.setMD5(md5);
+    CrossTemplates.setMD5(md5);
 }

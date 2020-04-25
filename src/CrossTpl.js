@@ -76,10 +76,10 @@ class CrossTpl {
         return (__classPrivateFieldGet(this, _core).getOptions('outDir') || '');
     }
     outDirJs() {
-        return this.outDir() + '/' + 'CrossTemplate.js';
+        return this.outDir() + '/' + 'CrossTemplates.js';
     }
     outDirTs() {
-        return this.outDir() + '/' + 'CrossTemplate.ts';
+        return this.outDir() + '/' + 'CrossTemplates.ts';
     }
     isSourceJs() {
         if (fs.existsSync(this.outDirJs())) {

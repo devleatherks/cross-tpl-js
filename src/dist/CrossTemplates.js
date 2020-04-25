@@ -15,28 +15,25 @@ var CrossTplCore = /** @class */ (function () {
     };
     return CrossTplCore;
 }());
-
-
-
-/*/open/820d10a791b925866ead1cbb58334ef7***/
+/*/open/820d10a791b925866ead1cbb58334ef7***/
 /*!*************************************************************!*\
-  !*** Template: view/hi.html:0 ***!
+  !*** Template: view/hi.html:25 ***!
   !*** Create:   2020-04-25T08:44:46.325Z ***!
-  !*** Modified: 2020-04-25T08:44:46.421Z ***!
+  !*** Modified: 2020-04-25T08:46:15.685Z ***!
   \*************************************************************/
-CrossTplCore.templates.set('820d10a791b925866ead1cbb58334ef7', /**820d10a791b925866ead1cbb58334ef7**/`PCEtLS9vcGVuLyB2aWV3L2hpLmh0bWwgLy0tPgo8IS0tIHZlcnNpb246IDE1ODc4MDQyODY0MjEgLS0+Cgo8IS0tL2VuZC8gPCUlZmlsZV9kaXIlJT4gLy0tPg==`/**-820d10a791b925866ead1cbb58334ef7**/);
+CrossTplCore.templates.set('820d10a791b925866ead1cbb58334ef7', /**820d10a791b925866ead1cbb58334ef7**/ "PCEtLS9vcGVuLyB2aWV3L2hpLmh0bWwgLy0tPgo8IS0tIHZlcnNpb246IDE1ODc4MDQzNzU2ODUgLS0+CkhpISBNeSBuYW1lIGlzIENyb3NzSnMgOikKPCEtLS9lbmQvIDwlJWZpbGVfZGlyJSU+IC8tLT4=" /**-820d10a791b925866ead1cbb58334ef7**/);
 /*/close/820d10a791b925866ead1cbb58334ef7***/
-/**<%%app_templates%%>**/
+/**<%%app_templates%%>**/
 /**
  * Cross JS Template
  *
  * @class CrossJSTemplate
  * @link usemint.com
  */
-var CrossTemplateClass = /** @class */ (function () {
-    function CrossTemplateClass() {
+var CrossTemplates = /** @class */ (function () {
+    function CrossTemplates() {
     }
-    CrossTemplateClass.render = function (name, handler) {
+    CrossTemplates.render = function (name, handler) {
         if (handler === void 0) { handler = false; }
         if (CrossTplCore.options.dirHash) {
             name = Md5.init(name);
@@ -49,15 +46,15 @@ var CrossTemplateClass = /** @class */ (function () {
         }
         return content || '';
     };
-    CrossTemplateClass.setMD5 = function (md5) {
-        CrossTemplateClass.md5 = md5;
+    CrossTemplates.setMD5 = function (md5) {
+        CrossTemplates.md5 = md5;
     };
-    CrossTemplateClass.md5 = void 0;
-    return CrossTemplateClass;
+    CrossTemplates.md5 = void 0;
+    return CrossTemplates;
 }());
-exports.CrossTemplateClass = CrossTemplateClass;
+exports.CrossTemplates = CrossTemplates;
 if (typeof md5 !== 'undefined') {
-    CrossTemplateClass.setMD5(md5);
+    CrossTemplates.setMD5(md5);
 }
 
 })(window, Object, exports);

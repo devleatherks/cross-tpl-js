@@ -77,11 +77,11 @@ export class CrossTpl {
     }
 
     public outDirJs() {
-        return this.outDir() + '/' + 'CrossTemplate.js';
+        return this.outDir() + '/' + 'CrossTemplates.js';
     }
 
     public outDirTs() {
-        return this.outDir() + '/' + 'CrossTemplate.ts';
+        return this.outDir() + '/' + 'CrossTemplates.ts';
     }
 
     public isSourceJs(): boolean {

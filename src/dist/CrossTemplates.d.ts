@@ -5,7 +5,7 @@
  * @class CrossJSTemplate
  * @link usemint.com
  */
-export declare class CrossTemplateClass {
+export declare class CrossTemplates {
     static md5: undefined;
     constructor();
     static render(name: string, handler?: boolean): any;
