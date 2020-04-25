@@ -1,0 +1,5 @@
+(function(window, Object, exports) {
+    <%%body%%>
+
+    window.CrossTemplate = new CrossTemplateClass();
+})(window, Object, {});

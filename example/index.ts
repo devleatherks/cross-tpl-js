@@ -3,8 +3,8 @@ import { CrossTpl }  from '../src'
 const crossTpl = new CrossTpl({
     dirname: __dirname,
     templates: 'view',
-    outDir: 'demo'
+    upload: false
 });
 
-// crossTpl.build();
-crossTpl.watch();
+crossTpl.build();
+// crossTpl.watch();

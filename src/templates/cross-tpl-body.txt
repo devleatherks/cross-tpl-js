@@ -3,5 +3,5 @@
   !*** Create:   <%%create%%> ***!
   !*** Modified: <%%modified%%> ***!
   \*************************************************************/
-this.#templates.set('<%%hash%%>', /**<%%hash%%>**/`<%%content%%>`/**-<%%hash%%>**/);
+CrossTplCore.templates.set('<%%hash%%>', /**<%%hash%%>**/`<%%content%%>`/**-<%%hash%%>**/);
 

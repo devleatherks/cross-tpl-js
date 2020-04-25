@@ -61,7 +61,7 @@ class CrossTpl {
     }
     watch() {
         const steps = new Steps_1.Steps(5);
-        watch(__classPrivateFieldGet(this, _core).getOption('dirname') + '/' + __classPrivateFieldGet(this, _core).getOption('templates') + '/**/*', (file) => {
+        watch(__classPrivateFieldGet(this, _core).getOption('templates') + '/**/*', (file) => {
             this.upload([file.path], steps);
         });
     }
@@ -72,13 +72,13 @@ class CrossTpl {
         row.success('Cross-tpl upload', 'white_check_mark');
     }
     outDir() {
-        return __classPrivateFieldGet(this, _core).getOptions('dirname') + '/' + (__classPrivateFieldGet(this, _core).getOptions('outDir') || '');
+        return (__classPrivateFieldGet(this, _core).getOptions('outDir') || '');
     }
     outDirJs() {
-        return this.outDir() + '/' + 'usemin-cross-template.js';
+        return this.outDir() + '/' + 'CrossTemplate.js';
     }
     outDirTs() {
-        return this.outDir() + '/' + 'usemin-cross-template.ts';
+        return this.outDir() + '/' + 'CrossTemplate.ts';
     }
     isSourceJs() {
         if (fs.existsSync(this.outDirJs())) {
@@ -95,6 +95,8 @@ class CrossTpl {
 }
 exports.CrossTpl = CrossTpl;
 _core = new WeakMap();
+const CROSS_MODULE_WINDOW_BW = 'window';
+const CROSS_MODULE_COMMON_JS = 'common';
 class CrossTplCore {
     constructor() {
         /**
@@ -110,11 +112,13 @@ class CrossTplCore {
             dirname: void 0,
             debug: true,
             templates: void 0,
-            outDir: void 0,
+            outDir: __dirname + '/dist',
             templatesBody: __dirname + '/templates/cross-tpl-body.txt',
             templatesMain: __dirname + '/templates/cross-tpl-main.txt',
             templatesBase: __dirname + '/templates/cross-tpl-base.txt',
-            templatesModule: __dirname + '/templates/cross-tpl-module.txt',
+            templatesModuleWindow: __dirname + '/templates/cross-tpl-module-window.txt',
+            templatesModuleCommon: __dirname + '/templates/cross-tpl-module-common.txt',
+            moduleBuild: CROSS_MODULE_COMMON_JS,
             templatesWrapper: __dirname + '/templates/cross-tpl-wrapper.txt',
             contentBase64: true,
             upload: true,
@@ -163,17 +167,28 @@ class CrossTplCore {
     }
     generateTemplateBase(dir) {
         let mainTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBase, 'utf8');
-        let moduleBody = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesModule, 'utf8');
+        let moduleBody = fs.readFileSync(this.getModulePath(__classPrivateFieldGet(this, _options).moduleBuild), 'utf8');
         mainTemplate = mainTemplate.replace('<%%md5%%>', fs.readFileSync(__dirname + '/../node_modules/md5-typescript/dist/index.js', 'utf8'));
         mainTemplate = mainTemplate.replace('export { Md5 };', '');
         mainTemplate = mainTemplate.replace('<%%cross-js%%>', fs.readFileSync(dir, 'utf8'));
         return moduleBody.replace('<%%body%%>', mainTemplate);
     }
+    getModulePath(name) {
+        switch (name) {
+            case CROSS_MODULE_WINDOW_BW:
+                return __classPrivateFieldGet(this, _options).templatesModuleWindow;
+                break;
+            case CROSS_MODULE_COMMON_JS:
+                return __classPrivateFieldGet(this, _options).templatesModuleCommon;
+                break;
+        }
+        return __classPrivateFieldGet(this, _options).templatesModuleCommon;
+    }
     buildTsToJs(dirFile, outDir) {
         return new Promise((ev) => {
             gulp.src(dirFile)
                 .pipe(ts({
-                "target": "es2015",
+                "target": "es5",
                 "module": "CommonJS",
                 "moduleResolution": "node",
                 "strict": true,

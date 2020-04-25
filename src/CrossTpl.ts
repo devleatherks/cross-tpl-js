@@ -55,14 +55,14 @@ export class CrossTpl {
 
     public watch() {
         const steps = new Steps(5);
-        
-        watch(this.#core.getOption('dirname') + '/' + this.#core.getOption('templates') + '/**/*', (file: any) => {
+
+        watch(this.#core.getOption('templates') + '/**/*', (file: any) => {
             this.upload([file.path], steps);
         });
     }
-    
+
     private upload(files: Array<string>, steps: any) {
-        
+
         const filesMime = this.#core.getFilesContent(files, [], steps);
 
         let row = steps.advance('Templates upload', 'recycle').start();
@@ -73,15 +73,15 @@ export class CrossTpl {
     }
 
     public outDir() {
-        return this.#core.getOptions('dirname') + '/' + (this.#core.getOptions('outDir') || '');
+        return (this.#core.getOptions('outDir') || '');
     }
 
     public outDirJs() {
-        return this.outDir() + '/' + 'usemin-cross-template.js';
+        return this.outDir() + '/' + 'CrossTemplate.js';
     }
 
     public outDirTs() {
-        return this.outDir() + '/' + 'usemin-cross-template.ts';
+        return this.outDir() + '/' + 'CrossTemplate.ts';
     }
 
     public isSourceJs(): boolean {
@@ -100,6 +100,9 @@ export class CrossTpl {
     }
 }
 
+const CROSS_MODULE_WINDOW_BW = 'window';
+const CROSS_MODULE_COMMON_JS = 'common';
+
 class CrossTplCore {
     /**
      * @var {boolean} debug
@@ -115,11 +118,13 @@ class CrossTplCore {
         dirname: void 0,
         debug: true,
         templates: void 0,
-        outDir: void 0,
+        outDir: __dirname + '/dist',
         templatesBody: __dirname + '/templates/cross-tpl-body.txt',
         templatesMain: __dirname + '/templates/cross-tpl-main.txt',
         templatesBase: __dirname + '/templates/cross-tpl-base.txt',
-        templatesModule: __dirname + '/templates/cross-tpl-module.txt',
+        templatesModuleWindow: __dirname + '/templates/cross-tpl-module-window.txt',
+        templatesModuleCommon: __dirname + '/templates/cross-tpl-module-common.txt',
+        moduleBuild: CROSS_MODULE_COMMON_JS,
         templatesWrapper: __dirname + '/templates/cross-tpl-wrapper.txt',
         contentBase64: true,
         upload: true,
@@ -164,14 +169,14 @@ class CrossTplCore {
         return body;
     }
 
-    public replaceTemplateBody<T extends CrossTplFilesContentObject>(crossTemplatePath: string, filesContent:  Array<T>) {
+    public replaceTemplateBody<T extends CrossTplFilesContentObject>(crossTemplatePath: string, filesContent: Array<T>) {
         let template = fs.readFileSync(<string>crossTemplatePath, 'utf8');
 
         filesContent.forEach(async (file: T) => {
             let hash = Md5.init(file.file.replace(this.#options.dirname + '/', ''));
 
             template = template.replace(
-                new RegExp(`\\/\\*\\*${hash}\\*\\*.*\\/\\*\\*-${hash}\\*\\*\\/`, "gm"), 
+                new RegExp(`\\/\\*\\*${hash}\\*\\*.*\\/\\*\\*-${hash}\\*\\*\\/`, "gm"),
                 `/**${hash}**/\`${Base64.encode(file.mime.content)}\`/**-${hash}**/`
             );
         });
@@ -190,7 +195,8 @@ class CrossTplCore {
 
     public generateTemplateBase(dir: string) {
         let mainTemplate = fs.readFileSync(<string>this.#options.templatesBase, 'utf8');
-        let moduleBody = fs.readFileSync(<string>this.#options.templatesModule, 'utf8');
+
+        let moduleBody = fs.readFileSync(this.getModulePath(<string>this.#options.moduleBuild), 'utf8');
 
         mainTemplate = mainTemplate.replace(
             '<%%md5%%>',
@@ -203,11 +209,24 @@ class CrossTplCore {
         return moduleBody.replace('<%%body%%>', mainTemplate);
     }
 
+    public getModulePath(name: string): string {
+        switch (name) {
+            case CROSS_MODULE_WINDOW_BW:
+                return <string>this.#options.templatesModuleWindow;
+                break;
+            case CROSS_MODULE_COMMON_JS:
+                return <string>this.#options.templatesModuleCommon;
+                break;
+        }
+
+        return <string>this.#options.templatesModuleCommon;
+    }
+
     public buildTsToJs(dirFile: string, outDir: string): Promise<any> {
         return new Promise((ev) => {
             gulp.src(dirFile)
                 .pipe(ts({
-                    "target": "es2015",
+                    "target": "es5",
                     "module": "CommonJS",
                     "moduleResolution": "node",
                     "strict": true,

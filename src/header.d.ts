@@ -9,6 +9,10 @@ export interface CrossTplConstructorOptions {
     templatesWrapper?: string
     contentBase64?: boolean
     dirHash?: boolean
+    templatesModuleWindow?: string,
+    templatesModuleCommon?: string,
+    moduleBuild?: string
+    upload?: boolean,
 }
 
 export interface CrossTplFilesContentObject {

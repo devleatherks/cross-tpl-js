@@ -6,7 +6,7 @@ export declare class CrossTpl {
     private create;
     watch(): void;
     private upload;
-    outDir(): string;
+    outDir(): any;
     outDirJs(): string;
     outDirTs(): string;
     isSourceJs(): boolean;

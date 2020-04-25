@@ -1,8 +1,8 @@
 {
     "name": "cross-tpl",
-    "version": "1.0.1",
+    "version": "1.0.7",
     "description": "",
-    "main": "index.js",
+    "main": "src/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
@@ -13,6 +13,7 @@
         "@types/gulp": "^4.0.6",
         "@types/js-base64": "^2.3.1",
         "@types/md5": "^2.1.33",
+        "@types/node": "^7.10.9",
         "btoa": "^1.2.1",
         "cli-step": "^1.0.2",
         "consola": "^2.11.3",
@@ -21,12 +22,12 @@
         "js-base64": "^2.5.2",
         "md5": "^2.2.1",
         "md5-typescript": "^1.0.5",
-        "ts-md5": "^1.2.7"
-    },
-    "devDependencies": {
-        "@types/node": "^7.10.9",
+        "ts-md5": "^1.2.7",
         "gulp": "^4.0.0",
         "gulp-typescript": "^6.0.0-alpha.1",
         "typescript": "^3.8.3"
+    },
+    "devDependencies": {
+        
     }
 }
