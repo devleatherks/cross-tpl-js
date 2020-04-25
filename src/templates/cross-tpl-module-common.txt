@@ -1,5 +1,3 @@
 (function(window, Object, exports) {
     <%%body%%>
-
-    exports.CrossTemplateClass = new CrossTemplateClass();
 })(window, Object, exports);

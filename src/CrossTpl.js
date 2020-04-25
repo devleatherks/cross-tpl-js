@@ -41,9 +41,6 @@ class CrossTpl {
     build() {
         const steps = new Steps_1.Steps(5);
         const files = __classPrivateFieldGet(this, _core).getTemplateFiles(false, steps);
-        if (files.length === 0) {
-            throw new TypeError(`CrossTpl: Files not available or no files [${files.join()}]`);
-        }
         return this.isUpload() ? this.upload(files, steps) : this.create(files, steps);
     }
     create(files, steps) {
@@ -67,8 +64,12 @@ class CrossTpl {
     }
     upload(files, steps) {
         const filesMime = __classPrivateFieldGet(this, _core).getFilesContent(files, [], steps);
+        let template = fs.readFileSync(this.outDirJs(), 'utf8');
         let row = steps.advance('Templates upload', 'recycle').start();
-        fs.writeFileSync(this.outDirJs(), __classPrivateFieldGet(this, _core).replaceTemplateBody(this.outDirJs(), filesMime));
+        template = __classPrivateFieldGet(this, _core).replaceTemplateBody(template, filesMime, steps.advance('Replace upload', 'recycle').start());
+        template = __classPrivateFieldGet(this, _core).addTemplateBody(template, filesMime, steps.advance('Add Templates', 'recycle').start());
+        template = __classPrivateFieldGet(this, _core).removeTemplateBody(template, steps.advance('Remove Templates', 'recycle').start());
+        fs.writeFileSync(this.outDirJs(), template);
         row.success('Cross-tpl upload', 'white_check_mark');
     }
     outDir() {
@@ -131,33 +132,76 @@ class CrossTplCore {
         _optionsDebug.set(this, []);
     }
     generateTemplateBody(filesContent, steps) {
-        let bodyTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBody, 'utf8'), templatesWrapper = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesWrapper, 'utf8'), body = (new String()).toString();
+        let body = (new String()).toString();
         const row = steps.advance('Template Packing', 'mag').start();
         filesContent.forEach((file) => __awaiter(this, void 0, void 0, function* () {
             row.update(file, 'warning');
-            let bodyReplace = bodyTemplate + '\n\r';
-            let contact = templatesWrapper;
-            contact = contact.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
-            contact = contact.replace('<%%version%%>', String(file.mime.modified.getTime()));
-            contact = contact.replace('<%%content%%>', file.mime.content);
-            bodyReplace = bodyReplace.replace(new RegExp('\\<%%hash%%\\>', 'g'), md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', '')));
-            bodyReplace = bodyReplace.replace('<%%content%%>', js_base64_1.Base64.encode(contact));
-            bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
-            bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
-            bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
-            bodyReplace = bodyReplace.replace('<%%modified%%>', file.mime.modified.toISOString());
-            body += bodyReplace;
+            body += this.createTemplateBody(file);
         }));
         row.success('Templates successfully packaged', 'white_check_mark');
         return body;
     }
-    replaceTemplateBody(crossTemplatePath, filesContent) {
-        let template = fs.readFileSync(crossTemplatePath, 'utf8');
+    createTemplateBody(file) {
+        let bodyTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBody, 'utf8');
+        let contact = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesWrapper, 'utf8');
+        let bodyReplace = bodyTemplate + '\n\r';
+        contact = contact.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
+        contact = contact.replace('<%%version%%>', String(file.mime.modified.getTime()));
+        contact = contact.replace('<%%content%%>', file.mime.content);
+        bodyReplace = bodyReplace.replace(new RegExp('\\<%%hash%%\\>', 'g'), md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', '')));
+        bodyReplace = bodyReplace.replace('<%%content%%>', js_base64_1.Base64.encode(contact));
+        bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
+        bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
+        bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
+        return bodyReplace.replace('<%%modified%%>', file.mime.modified.toISOString());
+    }
+    replaceTemplateBody(template, filesContent, row) {
+        let i = 0;
         filesContent.forEach((file) => __awaiter(this, void 0, void 0, function* () {
             let hash = md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
-            template = template.replace(new RegExp(`\\/\\*\\*${hash}\\*\\*.*\\/\\*\\*-${hash}\\*\\*\\/`, "gm"), `/**${hash}**/\`${js_base64_1.Base64.encode(file.mime.content)}\`/**-${hash}**/`);
+            if (this.isTemplateInclude(template, hash)) {
+                i++;
+                template = template.replace(new RegExp(`\\/\\*\\*${hash}\\*\\*.*\\/\\*\\*-${hash}\\*\\*\\/`, "gm"), `/**${hash}**/\`${js_base64_1.Base64.encode(file.mime.content)}\`/**-${hash}**/`);
+                row.update('Replace Template - ' + i, 'warning');
+            }
         }));
+        row.success('Replaced Template - ' + i, 'white_check_mark');
         return template;
+    }
+    addTemplateBody(template, filesContent, row) {
+        let i = 0;
+        filesContent.forEach((file) => __awaiter(this, void 0, void 0, function* () {
+            let hash = md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
+            if (!this.isTemplateInclude(template, hash)) {
+                template = template.replace('/**<%%app_templates%%>**/', `${this.createTemplateBody(file)}/**<%%app_templates%%>**/`);
+                i++;
+                row.update('Add Template - ' + i, 'warning');
+            }
+        }));
+        row.success('Added Template - ' + i, 'white_check_mark');
+        return template;
+    }
+    removeTemplateBody(template, row) {
+        let i = 0;
+        const list = this.listTemplateHash(template);
+        const files = this.getFilesRecursively(this.getOption('dirname') + '/' + this.getOption('templates'), [], 0, true);
+        list.forEach((hash) => __awaiter(this, void 0, void 0, function* () {
+            if (files.indexOf(hash) === -1) {
+                template = template.replace(new RegExp(`\\/\\*\\/open\\/${hash}\\*\\*\\*\\/.*\\/\\*\\/close\\/${hash}\\*\\*\\*\\/`, "gs"), '');
+                i++;
+                row.update('Remove Template - ' + i, 'warning');
+            }
+        }));
+        row.success('Removed Template - ' + i, 'white_check_mark');
+        return template;
+    }
+    listTemplateHash(template) {
+        let hash = [];
+        let tags = template.match(RegExp("\\/\\*\\/open\\/(\\w*)\\*\\*\\*\\/", 'g')) || [];
+        tags.forEach((tag) => {
+            hash.push(tag.replace('/*/open/', '').replace('***/', ''));
+        });
+        return hash;
     }
     generateTemplateMain(body) {
         let mainTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesMain, 'utf8');
@@ -168,7 +212,7 @@ class CrossTplCore {
     generateTemplateBase(dir) {
         let mainTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBase, 'utf8');
         let moduleBody = fs.readFileSync(this.getModulePath(__classPrivateFieldGet(this, _options).moduleBuild), 'utf8');
-        mainTemplate = mainTemplate.replace('<%%md5%%>', fs.readFileSync(__dirname + '/../node_modules/md5-typescript/dist/index.js', 'utf8'));
+        mainTemplate = mainTemplate.replace('<%%md5%%>', fs.readFileSync(__dirname + '/../node_modules/md5-typescript/dist/index.js', 'utf8').replace(/\s{2,}/g, ""));
         mainTemplate = mainTemplate.replace('export { Md5 };', '');
         mainTemplate = mainTemplate.replace('<%%cross-js%%>', fs.readFileSync(dir, 'utf8'));
         return moduleBody.replace('<%%body%%>', mainTemplate);
@@ -250,13 +294,20 @@ class CrossTplCore {
         row.success('All data collected', 'white_check_mark');
         return fileMime;
     }
+    isTemplateInclude(content, hash) {
+        if (content.search(new RegExp(`\\/\\*\\*${hash}\\*\\*\\/`, "gm")) !== -1 &&
+            content.search(new RegExp(`\\/\\*\\*-${hash}\\*\\*\\/`, "gm")) !== -1) {
+            return true;
+        }
+        return false;
+    }
     /**
      * Get Template Files
      *
      * @param {string} templateDir
      * @returns {Array<string>}
      */
-    getTemplateFiles(templateDir = false, steps) {
+    getTemplateFiles(templateDir = false, steps, hash = false) {
         const row = steps.advance('Collection template in the specified folder').start();
         templateDir = templateDir || this.getOption('dirname') + '/' + this.getOption('templates');
         const files = this.getFilesRecursively(String(templateDir), [], 0) || [];
@@ -285,18 +336,18 @@ class CrossTplCore {
      * @throws {TypeError}
      * @returns {Array<string>}
      */
-    getFilesRecursively(dir, files = [], iteration = 0) {
+    getFilesRecursively(dir, files = [], iteration = 0, hash = false) {
         const objects = fs.readdirSync(dir);
         if (objects.length === 0 && iteration === 0) {
-            throw new TypeError(`CrossTpl: No patterns [${dir}]`);
+            return [];
         }
         for (const index in objects) {
             const name = dir + '/' + objects[index];
             if (fs.statSync(name).isDirectory()) {
-                this.getFilesRecursively(name, files, iteration++);
+                this.getFilesRecursively(name, files, iteration++, hash);
             }
             else {
-                files.push(name);
+                files.push(hash ? md5_typescript_1.Md5.init(name.replace(__classPrivateFieldGet(this, _options).dirname + '/', '')) : name);
             }
         }
         return files;

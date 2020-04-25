@@ -12,6 +12,10 @@ class CrossTplCore {
     }
 }
 
+<%%templates%%>
+
+/**<%%app_templates%%>**/
+
 /**
  * Cross JS Template
  * 
@@ -24,10 +28,10 @@ export class CrossTemplateClass {
     public static md5 = void 0;
 
     constructor() {
-        <%%templates%%>
+        
     }
 
-    public render(name: string, handler: boolean = false) {
+    public static render(name: string, handler: boolean = false) {
         if(CrossTplCore.options.dirHash) {
             name = Md5.init(name);
         }
