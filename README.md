@@ -2,7 +2,7 @@
 #### Using
 
 ``` ts
-import { CrossTpl }  from '../src'
+import { CrossTpl }  from 'cross-tpl'
 
 const crossTpl = new CrossTpl({
     dirname: __dirname,
