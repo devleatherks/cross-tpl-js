@@ -45,6 +45,8 @@ export class CrossTpl {
                 this.#core.generateTemplateBase(this.outDirJs()),
             );
 
+            fs.unlinkSync(this.outDirTs());
+
             row.success('Cross-tpl assembled', 'white_check_mark');
         });
     }
@@ -153,6 +155,10 @@ class CrossTplCore {
         return body;
     }
 
+    public templateDir(append: string = '') {
+        return this.#options.dirname + '/' + this.#options.templates + append;
+    }
+
     public createTemplateBody<T extends CrossTplFilesContentObject>(file: T): string {
         let bodyTemplate = fs.readFileSync(<string>this.#options.templatesBody, 'utf8');
         let contact = fs.readFileSync(<string>this.#options.templatesWrapper, 'utf8');
@@ -162,9 +168,10 @@ class CrossTplCore {
         contact = contact.replace('<%%version%%>', String(file.mime.modified.getTime()));
         contact = contact.replace('<%%content%%>', file.mime.content);
 
-        bodyReplace = bodyReplace.replace(new RegExp('\\<%%hash%%\\>', 'g'), Md5.init(file.file.replace(this.#options.dirname + '/', '')));
+        bodyReplace = bodyReplace.replace(new RegExp('\\<%%hash%%\\>', 'g'), Md5.init(file.file.replace(this.templateDir('/'), '')));
         bodyReplace = bodyReplace.replace('<%%content%%>', Base64.encode(contact));
         bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
+        bodyReplace = bodyReplace.replace('<%%name_dir%%>', file.file.replace(this.templateDir('/'), ''));
         bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
         bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
 
@@ -174,7 +181,7 @@ class CrossTplCore {
     public replaceTemplateBody<T extends CrossTplFilesContentObject>(template: string, filesContent: Array<T>, row: any) {
         let i = 0;
         filesContent.forEach(async (file: T) => {
-            let hash = Md5.init(file.file.replace(this.#options.dirname + '/', ''));
+            let hash = Md5.init(file.file.replace(this.templateDir('/'), ''));
 
             if (this.isTemplateInclude(template, hash)) {
                 i++;
@@ -194,7 +201,7 @@ class CrossTplCore {
     public addTemplateBody<T extends CrossTplFilesContentObject>(template: string, filesContent: Array<T>, row: any) {
         let i = 0;
         filesContent.forEach(async (file: T) => {
-            let hash = Md5.init(file.file.replace(this.#options.dirname + '/', ''));
+            let hash = Md5.init(file.file.replace(this.templateDir('/'), ''));
 
             if (!this.isTemplateInclude(template, hash)) {
                 template = template.replace(
@@ -416,7 +423,7 @@ class CrossTplCore {
             if (fs.statSync(name).isDirectory()) {
                 this.getFilesRecursively(name, files, iteration++, hash);
             } else {
-                files.push(hash ? Md5.init(name.replace(this.#options.dirname + '/', '')) : name);
+                files.push(hash ? Md5.init(name.replace(this.templateDir('/'), '')) : name);
             }
         }
 

@@ -15,14 +15,15 @@ var CrossTplCore = /** @class */ (function () {
     };
     return CrossTplCore;
 }());
-/*/open/820d10a791b925866ead1cbb58334ef7***/
+/*/open/8cd728920dc49356699b7ef285a1323b***/
 /*!*************************************************************!*\
-  !*** Template: view/hi.html:25 ***!
+  !*** Name: hi.html ***!
+  !*** Template: view/hi.html:52 ***!
   !*** Create:   2020-04-25T08:44:46.325Z ***!
-  !*** Modified: 2020-04-25T08:46:15.685Z ***!
+  !*** Modified: 2020-04-25T09:02:28.153Z ***!
   \*************************************************************/
-CrossTplCore.templates.set('820d10a791b925866ead1cbb58334ef7', /**820d10a791b925866ead1cbb58334ef7**/ "PCEtLS9vcGVuLyB2aWV3L2hpLmh0bWwgLy0tPgo8IS0tIHZlcnNpb246IDE1ODc4MDQzNzU2ODUgLS0+CkhpISBNeSBuYW1lIGlzIENyb3NzSnMgOikKPCEtLS9lbmQvIDwlJWZpbGVfZGlyJSU+IC8tLT4=" /**-820d10a791b925866ead1cbb58334ef7**/);
-/*/close/820d10a791b925866ead1cbb58334ef7***/
+CrossTplCore.templates.set('8cd728920dc49356699b7ef285a1323b', /**8cd728920dc49356699b7ef285a1323b**/ "PGRpdiBpZD0iY3Jvc3MtdHBsIj5IaSEgTXkgbmFtZSBpcyBDcm9zc0pzIDopIDwvZGl2Pg==" /**-8cd728920dc49356699b7ef285a1323b**/);
+/*/close/8cd728920dc49356699b7ef285a1323b***/
 /**<%%app_templates%%>**/
 /**
  * Cross JS Template

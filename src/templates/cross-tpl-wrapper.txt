@@ -1,4 +1,1 @@
-<!--/open/ <%%file_dir%%> /-->
-<!-- version: <%%version%%> -->
 <%%content%%>
-<!--/end/ <%%file_dir%%> /-->

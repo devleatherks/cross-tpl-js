@@ -53,6 +53,7 @@ class CrossTpl {
         __classPrivateFieldGet(this, _core).buildTsToJs(this.outDirTs(), this.outDir()).then(() => {
             row.update('Build Code');
             fs.writeFileSync(this.outDirJs(), __classPrivateFieldGet(this, _core).generateTemplateBase(this.outDirJs()));
+            fs.unlinkSync(this.outDirTs());
             row.success('Cross-tpl assembled', 'white_check_mark');
         });
     }
@@ -141,6 +142,9 @@ class CrossTplCore {
         row.success('Templates successfully packaged', 'white_check_mark');
         return body;
     }
+    templateDir(append = '') {
+        return __classPrivateFieldGet(this, _options).dirname + '/' + __classPrivateFieldGet(this, _options).templates + append;
+    }
     createTemplateBody(file) {
         let bodyTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBody, 'utf8');
         let contact = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesWrapper, 'utf8');
@@ -148,9 +152,10 @@ class CrossTplCore {
         contact = contact.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
         contact = contact.replace('<%%version%%>', String(file.mime.modified.getTime()));
         contact = contact.replace('<%%content%%>', file.mime.content);
-        bodyReplace = bodyReplace.replace(new RegExp('\\<%%hash%%\\>', 'g'), md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', '')));
+        bodyReplace = bodyReplace.replace(new RegExp('\\<%%hash%%\\>', 'g'), md5_typescript_1.Md5.init(file.file.replace(this.templateDir('/'), '')));
         bodyReplace = bodyReplace.replace('<%%content%%>', js_base64_1.Base64.encode(contact));
         bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
+        bodyReplace = bodyReplace.replace('<%%name_dir%%>', file.file.replace(this.templateDir('/'), ''));
         bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
         bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
         return bodyReplace.replace('<%%modified%%>', file.mime.modified.toISOString());
@@ -158,7 +163,7 @@ class CrossTplCore {
     replaceTemplateBody(template, filesContent, row) {
         let i = 0;
         filesContent.forEach((file) => __awaiter(this, void 0, void 0, function* () {
-            let hash = md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
+            let hash = md5_typescript_1.Md5.init(file.file.replace(this.templateDir('/'), ''));
             if (this.isTemplateInclude(template, hash)) {
                 i++;
                 template = template.replace(new RegExp(`\\/\\*\\*${hash}\\*\\*.*\\/\\*\\*-${hash}\\*\\*\\/`, "gm"), `/**${hash}**/\`${js_base64_1.Base64.encode(file.mime.content)}\`/**-${hash}**/`);
@@ -171,7 +176,7 @@ class CrossTplCore {
     addTemplateBody(template, filesContent, row) {
         let i = 0;
         filesContent.forEach((file) => __awaiter(this, void 0, void 0, function* () {
-            let hash = md5_typescript_1.Md5.init(file.file.replace(__classPrivateFieldGet(this, _options).dirname + '/', ''));
+            let hash = md5_typescript_1.Md5.init(file.file.replace(this.templateDir('/'), ''));
             if (!this.isTemplateInclude(template, hash)) {
                 template = template.replace('/**<%%app_templates%%>**/', `${this.createTemplateBody(file)}/**<%%app_templates%%>**/`);
                 i++;
@@ -347,7 +352,7 @@ class CrossTplCore {
                 this.getFilesRecursively(name, files, iteration++, hash);
             }
             else {
-                files.push(hash ? md5_typescript_1.Md5.init(name.replace(__classPrivateFieldGet(this, _options).dirname + '/', '')) : name);
+                files.push(hash ? md5_typescript_1.Md5.init(name.replace(this.templateDir('/'), '')) : name);
             }
         }
         return files;

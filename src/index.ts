@@ -1,2 +1,2 @@
 export { CrossTpl } from "./CrossTpl";
-// export { CrossTemplates } from "./dist/CrossTemplate";
+// export { CrossTemplates } from "./dist/CrossTemplates";
