@@ -10,12 +10,41 @@ var CrossTplCore = /** @class */ (function () {
     }
     CrossTplCore.templates = new Map();
     CrossTplCore.options = {
-        contentBase64: true,
-        dirHash: true
+        contentBase64: '/* <%%contentBase64%%>',
+        dirHash: '/* <%%dirHash%%> */'
     };
     return CrossTplCore;
 }());
-/**<%%app_templates%%>**/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*/open/2f7b8df5913a1d95bf169a4d2e2f46ee***/
+/*!*************************************************************!*\
+  !*** Name: xxx ***!
+  !*** Lang:  ***!
+  !*** Translation: /var/www/cross-tpl/example/view/xxx.html:0 ***!
+  !*** Create:   2020-05-02T15:37:42.063Z ***!
+  !*** Modified: 2020-05-02T16:35:02.142Z ***!
+  \*************************************************************/
+  CrossTplCore.set('d41d8cd98f00b204e9800998ecf8427e', '2f7b8df5913a1d95bf169a4d2e2f46ee', /**2f7b8df5913a1d95bf169a4d2e2f46ee**/``/**-2f7b8df5913a1d95bf169a4d2e2f46ee**/);
+/*/close/2f7b8df5913a1d95bf169a4d2e2f46ee***/
+/**<%%app_templates%%>**/
 /**
  * Cross JS Template
  *

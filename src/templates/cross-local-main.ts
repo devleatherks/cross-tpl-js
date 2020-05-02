@@ -87,7 +87,7 @@ export class CrossLocale {
         let file: string = list[0];
 
         if(CrossTplCore.options.dirHash) {
-            file = Md5.init(file);
+            file = Md5.init(CrossTplCore.code + '-' + file);
         }
 
         let content: string = CrossTplCore.lang[CrossTplCore.code].get(file) || void 0;

@@ -1,10 +1,14 @@
-import { CrossLocal }  from '../src'
+import { CrossLang }  from '../src'
 
-const crossLocal = new CrossLocal({
+const crossLang = new CrossLang({
     dirname: __dirname,
     localDir: 'local',
-    moduleBuild: 'window'
+    moduleBuild: 'window',
+    type: 'php',
+    upload: false
 });
 
-crossLocal.build();
-// crossTpl.watch();
+( async () => {
+    await crossLang.build();
+})()
+// crossLocal.watch();

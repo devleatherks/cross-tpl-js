@@ -1,7 +1,8 @@
-import { CrossTplConstructorOptions, CrossTplFilesContentObject } from './header';
+import { CrossTplConstructorOptions, CrossFile } from './header';
 import * as fs from 'fs';
 import { CrossTplCore, PLUGIN_CROSS_TPL } from './CrossCore';
-import { Steps, RawSteps, RawStep } from "./Steps";
+import { Disk } from './Helpers/Disk';
+import { Spinner } from './Helpers/Spinner';
 var watch = require("gulp-watch");
 
 export class CrossTpl {
@@ -10,79 +11,77 @@ export class CrossTpl {
     constructor(options: CrossTplConstructorOptions) {
         this.#core = new CrossTplCore();
         this.#core.options = options;
+        this.#core.console = new Spinner('Cross-tpl');
     }
 
-    public build() {
-        const steps = new Steps(5);
+    public async build() {
+        const list: Array<string> = Disk.list(this.dir);
+        const files = await this.#core.load(list, false);
 
-        const files = this.#core.getTemplateFiles(false, steps);
-
-        return this.isUpload() ? this.upload(files, steps) : this.create(files, steps);
+        return this.isUpload() ? this.upload(files) : this.create(files);
     }
 
-    private create(files: Array<string>, steps: any) {
-        const filesMime = this.#core.getFilesContent(files, [], steps);
+    private create(files: CrossFile[], body: Array<string> = []) {
+        this.#core.console.text('Create [' + files.length  + ']');
 
-        const body = this.#core.generateTemplateBody(filesMime, steps);
-        const main = this.#core.generateTemplateMain(body);
+        files.forEach((filesMime: CrossFile) => {
+            body.push(this.#core.body(filesMime));
+        });
 
-        let row = steps.advance('Engine assembly', 'recycle').start();
+        const main = this.#core.main(body.join(''), false);
 
-        fs.writeFileSync(this.outDirTs(), main);
+        fs.writeFileSync(this.outDirTs, main);
 
-        row.update('Code generation');
+        this.#core.console.text('Script generation');
 
-        this.#core.buildTsToJs(this.outDirTs(), this.outDir()).then(() => {
-            row.update('Build Code');
+        this.#core.buildTsToJs(this.outDirTs, this.outDir()).then(() => {
+            this.#core.console.text('We pack the structure');
 
             fs.writeFileSync(
-                this.outDirJs(),
-                this.#core.generateTemplateBase(this.outDirJs(), PLUGIN_CROSS_TPL),
+                this.outDirJs,
+                this.#core.generateTemplateBase(this.outDirJs, PLUGIN_CROSS_TPL),
             );
 
-            fs.unlinkSync(this.outDirTs());
+            fs.unlinkSync(this.outDirTs);
 
-            row.success('Cross-tpl assembled', 'white_check_mark');
+            this.#core.console.succeed('Success! Done');
         });
     }
 
     public watch() {
-        const steps = new Steps(5);
-
-        watch(this.#core.getOption('templates') + '/**/*', (file: any) => {
-            this.upload([file.path], steps);
+        watch(this.dir + '/**/*', async (file: any) => {
+            this.upload(await this.#core.load([file.path], true));
         });
     }
 
-    private upload(files: Array<string>, steps: any) {
-        const filesMime = this.#core.getFilesContent(files, [], steps);
-        let template = fs.readFileSync(this.outDirJs(), 'utf8');
+    private upload(files: CrossFile[]) {
+        let template = fs.readFileSync(this.outDirJs, 'utf8');
 
-        let row = steps.advance('Templates upload', 'recycle').start();
+        template = this.#core.refresh(files, template);
+        template = this.#core.add(files, template);
+        template = this.#core.remove(files, template);
 
-        template = this.#core.replaceTemplateBody(template, filesMime, steps.advance('Replace upload', 'recycle').start());
-        template = this.#core.addTemplateBody(template, filesMime, steps.advance('Add Templates', 'recycle').start());
-        template = this.#core.removeTemplateBody(template, steps.advance('Remove Templates', 'recycle').start());
+        fs.writeFileSync(this.outDirJs, template);
+    }
 
-        fs.writeFileSync(this.outDirJs(), template);
-
-        row.success('Cross-tpl upload', 'white_check_mark');
+    public get dir(){
+        return (this.#core.getOptions('dirname') || '') + '/' + (this.#core.getOptions('templates') || '');
     }
 
     public outDir() {
         return (this.#core.getOptions('outDir') || '');
     }
 
-    public outDirJs() {
+    public get outDirJs() {
         return this.outDir() + '/' + 'CrossTemplates.js';
     }
 
-    public outDirTs() {
+    public get outDirTs() {
         return this.outDir() + '/' + 'CrossTemplates.ts';
     }
 
     public isSourceJs(): boolean {
-        if (fs.existsSync(this.outDirJs())) {
+        if (fs.existsSync(this.outDirJs)) {
             return true;
         }
 

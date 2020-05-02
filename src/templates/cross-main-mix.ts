@@ -1,0 +1,57 @@
+declare class Md5 {
+    static init(name: string): any
+}
+
+declare function md5(): () => any;
+
+class CrossTplCore {
+    public static templates = new Map();
+    public static options = {
+        contentBase64: '/* <%%contentBase64%%>',
+        dirHash: '/* <%%dirHash%%> */'
+    }
+}
+
+/*<%%templates%%>*/
+
+/**<%%app_templates%%>**/
+
+/**
+ * Cross JS Template
+ * 
+ * @class CrossJSTemplate 
+ * @link usemint.com
+ */
+export class CrossTemplates {
+    
+
+    public static md5 = void 0;
+
+    constructor() {
+        
+    }
+
+    public static render(name: string, handler: boolean = false) {
+        if(CrossTplCore.options.dirHash) {
+            name = Md5.init(name);
+        }
+
+        let content = CrossTplCore.templates.get(name) || '';
+
+        if(CrossTplCore.options.contentBase64 && content) {
+            content = decodeURIComponent(atob(content).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+        return content || '';
+    } 
+
+    public static setMD5(md5: any): any {
+        CrossTemplates.md5 = md5;
+    }
+}
+
+if(typeof md5 !== 'undefined') {
+    CrossTemplates.setMD5(md5);
+}

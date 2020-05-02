@@ -49,24 +49,26 @@ var CrossTplCore = /** @class */ (function () {
     };
     return CrossTplCore;
 }());
-/*/open/d56b699830e77ba53855679cb1d252da***/
+/*/open/a5d0ae9e7c86aa216cdf3d4b1b0e735d***/
 /*!*************************************************************!*\
   !*** Name: login ***!
-  !*** Translation: local/en/login.json:22 ***!
+  !*** Lang: en ***!
+  !*** Translation: en/login.php:744 ***!
   !*** Create:   2020-04-28T19:03:17.510Z ***!
-  !*** Modified: 2020-05-01T11:35:45.379Z ***!
+  !*** Modified: 2020-05-02T15:06:03.960Z ***!
   \*************************************************************/
-CrossTplCore.set('9cfefed8fb9497baa5cd519d7d2bb5d7', 'd56b699830e77ba53855679cb1d252da', /**d56b699830e77ba53855679cb1d252da**/ "ewogICAgIm5hbWUiOiAiTmFtZSIKfQ==" /**-d56b699830e77ba53855679cb1d252da**/);
-/*/close/d56b699830e77ba53855679cb1d252da***/
-/*/open/d56b699830e77ba53855679cb1d252da***/
+CrossTplCore.set('9cfefed8fb9497baa5cd519d7d2bb5d7', 'a5d0ae9e7c86aa216cdf3d4b1b0e735d', /**a5d0ae9e7c86aa216cdf3d4b1b0e735d**/ "eyJyZXNldCI6IllvdXIgcGFzc3dvcmQgaGFzIGJlZW4gcmVzZXQhIiwic2VudCI6IldlIGhhdmUgZW1haWxlZCB5b3VyIHBhc3N3b3JkIHJlc2V0IGxpbmshIiwidGhyb3R0bGVkIjoiUGxlYXNlIHdhaXQgYmVmb3JlIHJldHJ5aW5nLiIsInRva2VuIjoiVGhpcyBwYXNzd29yZCByZXNldCB0b2tlbiBpcyBpbnZhbGlkLiIsInVzZXIiOiJXZSBjYW4ndCBmaW5kIGEgdXNlciB3aXRoIHRoYXQgZW1haWwgYWRkcmVzcy4ifQ==" /**-a5d0ae9e7c86aa216cdf3d4b1b0e735d**/);
+/*/close/a5d0ae9e7c86aa216cdf3d4b1b0e735d***/
+/*/open/d02533f62e82d235c8fe533d05ec1cd2***/
 /*!*************************************************************!*\
   !*** Name: login ***!
-  !*** Translation: local/ru/login.json:24 ***!
+  !*** Lang: ru ***!
+  !*** Translation: ru/login.php:744 ***!
   !*** Create:   2020-04-28T19:03:24.794Z ***!
-  !*** Modified: 2020-05-01T11:35:45.387Z ***!
+  !*** Modified: 2020-05-02T09:56:40.644Z ***!
   \*************************************************************/
-CrossTplCore.set('89484b14b36a8d5329426a3d944d2983', 'd56b699830e77ba53855679cb1d252da', /**d56b699830e77ba53855679cb1d252da**/ "ewogICAgIm5hbWUiOiAi0JjQvNGPIgp9" /**-d56b699830e77ba53855679cb1d252da**/);
-/*/close/d56b699830e77ba53855679cb1d252da***/
+CrossTplCore.set('89484b14b36a8d5329426a3d944d2983', 'd02533f62e82d235c8fe533d05ec1cd2', /**d02533f62e82d235c8fe533d05ec1cd2**/ "eyJyZXNldCI6IllvdXIgcGFzc3dvcmQgaGFzIGJlZW4gcmVzZXQhIiwic2VudCI6IldlIGhhdmUgZW1haWxlZCB5b3VyIHBhc3N3b3JkIHJlc2V0IGxpbmshIiwidGhyb3R0bGVkIjoiUGxlYXNlIHdhaXQgYmVmb3JlIHJldHJ5aW5nLiIsInRva2VuIjoiVGhpcyBwYXNzd29yZCByZXNldCB0b2tlbiBpcyBpbnZhbGlkLiIsInVzZXIiOiJXZSBjYW4ndCBmaW5kIGEgdXNlciB3aXRoIHRoYXQgZW1haWwgYWRkcmVzcy4ifQ==" /**-d02533f62e82d235c8fe533d05ec1cd2**/);
+/*/close/d02533f62e82d235c8fe533d05ec1cd2***/
 /**<%%app_templates%%>**/
 /**
  * Cross JS Template
@@ -93,7 +95,7 @@ var CrossLocale = /** @class */ (function () {
         }
         var file = list[0];
         if (CrossTplCore.options.dirHash) {
-            file = Md5.init(file);
+            file = Md5.init(CrossTplCore.code + '-' + file);
         }
         var content = CrossTplCore.lang[CrossTplCore.code].get(file) || void 0;
         if (content === void 0) {

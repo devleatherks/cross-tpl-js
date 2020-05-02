@@ -1,12 +1,15 @@
-import { CrossTplConstructorOptions, CrossTplFilesContentObject } from './header';
+import { CrossTplConstructorOptions, CrossTplFilesContentObject, CrossLocalInfoPath, CrossFile, DiskMime } from './header';
 import * as fs from 'fs';
 import * as nodePathModule from 'path';
 import { Base64 } from 'js-base64';
 import { Md5 } from "md5-typescript";
 var gulp = require("gulp");
 var watch = require("gulp-watch");
+import { Disk } from './Helpers/Disk';
 var ts = require("gulp-typescript");
 var path = require("path");
+import { Spinner } from './Helpers/Spinner';
+const { spawn } = require("child_process");
 
 export const CROSS_MODULE_WINDOW_BW = 'window';
 export const CROSS_MODULE_COMMON_JS = 'common';
@@ -28,12 +31,13 @@ export class CrossTplCore {
         dirname: void 0,
         debug: true,
         templates: void 0,
+        type: 'json',
         localDir: void 0,
         outDir: __dirname + '/dist',
-        templatesBody: __dirname + '/templates/cross-tpl-body.txt',
-        templatesBodyLocal: __dirname + '/templates/cross-local-body.js',
-        templatesMain: __dirname + '/templates/cross-tpl-main.txt',
-        templatesMainLocal: __dirname + '/templates/cross-local-main.ts',
+        templateBodyLang: __dirname + '/templates/cross-body-lang.js',
+        templateBodyMix: __dirname + '/templates/cross-body-mix.js',
+        templateMainLang: __dirname + '/templates/cross-main-lang.ts',
+        templateMainMix: __dirname + '/templates/cross-main-mix.ts',
         templatesBase: __dirname + '/templates/cross-tpl-base.txt',
         templatesModuleWindow: __dirname + '/templates/cross-tpl-module-window.txt',
         templatesModuleWindowLocal: __dirname + '/templates/cross-local-module-window.js',
@@ -51,131 +55,135 @@ export class CrossTplCore {
      * @private
      */
     #optionsDebug: Array<string> = [];
-
-    public generateTemplateBody<T extends CrossTplFilesContentObject>(filesContent: Array<T>, steps: any): string {
-        let body: string = (new String()).toString();
-
-        const row = steps.advance('Template Packing', 'mag').start();
-
-        filesContent.forEach(async (file: T) => {
-            row.update(file, 'warning');
-
-            body += this.createTemplateBody(file);
-        });
-
-        row.success('Templates successfully packaged', 'white_check_mark');
-
-        return body;
-    }
-
-    public generateTemplateBodyLocal<T extends CrossTplFilesContentObject>(filesContent:  Array<CrossTplFilesContentObject>, key: string): string {
-        let body: string = (new String()).toString();
-
-        filesContent.forEach(async (value: CrossTplFilesContentObject) => {
-            body += this.createTemplateBodyLocal(value, key);
-        });
-
-        return body;
-    }
+    
+    /**
+     * @var {Spinner} console
+     * @private
+     */
+    console: any;
 
     public templateDir(append: string = '') {
         return this.#options.dirname + '/' + this.#options.templates + append;
     }
 
-    public createTemplateBody<T extends CrossTplFilesContentObject>(file: T): string {
-        let bodyTemplate = fs.readFileSync(<string>this.#options.templatesBody, 'utf8');
-        let contact = fs.readFileSync(<string>this.#options.templatesWrapper, 'utf8');
-        let bodyReplace: string = bodyTemplate + '\n\r';
-
-        contact = contact.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
-        contact = contact.replace('<%%version%%>', String(file.mime.modified.getTime()));
-        contact = contact.replace('<%%content%%>', file.mime.content);
-
-        bodyReplace = bodyReplace.replace(new RegExp('\\<%%hash%%\\>', 'g'), Md5.init(file.file.replace(this.templateDir('/'), '')));
-        bodyReplace = bodyReplace.replace('<%%content%%>', Base64.encode(contact));
-        bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
-        bodyReplace = bodyReplace.replace('<%%name_dir%%>', file.file.replace(this.templateDir('/'), ''));
-        bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
-        bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
-
-        return bodyReplace.replace('<%%modified%%>', file.mime.modified.toISOString());
+    public localDir(append: string = '') {
+        return this.#options.dirname + '/' + this.#options.localDir + append;
     }
-    
-    public createTemplateBodyLocal<T extends CrossTplFilesContentObject>(file: T, key: string): string {
-        let bodyTemplate = fs.readFileSync(<string>this.#options.templatesBodyLocal, 'utf8');
-        let bodyReplace: string = bodyTemplate + '\n\r';
-        
-        bodyReplace = bodyReplace.replace(
-            new RegExp('\\<%%hash%%\\>', 'g'), 
-            Md5.init(path.basename(file.file).replace(file.mime.type, ''))
+
+    /**
+     * @param {CrossFile} file
+     * @returns {string} 
+     */
+    public getBodyTemplate(file: CrossFile): string {
+        return Disk.content(
+            this.isLang(file) ? <string>this.#options.templateBodyLang : <string>this.#options.templateBodyMix
         );
-        bodyReplace = bodyReplace.replace('<%%content%%>', Base64.encode(file.mime.content));
-        bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.file.replace(this.#options.dirname + '/', ''));
-        bodyReplace = bodyReplace.replace('<%%name%%>', path.basename(file.file).replace(file.mime.type, ''));
+    }
+    /**
+         * @param {CrossFile} file
+         * @returns {string} 
+         */
+    public getMainTemplate(lang: boolean): string {
+        return Disk.content(
+            lang ? <string>this.#options.templateMainLang : <string>this.#options.templateMainMix
+        );
+    }
+
+    /**
+     * @param {CrossFile} file
+     * @returns {string} 
+     */
+    public body(file: CrossFile): string {
+        let bodyTemplate = this.getBodyTemplate(file);
+        let bodyReplace: string = bodyTemplate + '\n\r';
+
+        bodyReplace = bodyReplace.replace(
+            new RegExp('\\<%%hash%%\\>', 'g'),
+            this.hash(file)
+        );
+
+        bodyReplace = bodyReplace.replace('<%%content%%>', Base64.encode(file.content));
+        bodyReplace = bodyReplace.replace('<%%file_dir%%>', file.path);
+        bodyReplace = bodyReplace.replace('<%%name%%>', file.mime.name);
         bodyReplace = bodyReplace.replace('<%%size%%>', String(file.mime.size));
         bodyReplace = bodyReplace.replace('<%%create%%>', file.mime.create.toISOString());
-        bodyReplace = bodyReplace.replace('/**<%%local%%>**/', Md5.init(key));
+
+        if (this.isLang(file)) {
+            bodyReplace = bodyReplace.replace('/**<%%lang_hash%%>**/', Md5.init(file.lang));
+            bodyReplace = bodyReplace.replace('<%%lang%%>', String(file.lang));
+        }
 
         return bodyReplace.replace('<%%modified%%>', file.mime.modified.toISOString());
     }
 
-    public replaceTemplateBody<T extends CrossTplFilesContentObject>(template: string, filesContent: Array<T>, row: any) {
-        let i = 0;
-        filesContent.forEach(async (file: T) => {
-            let hash = Md5.init(file.file.replace(this.templateDir('/'), ''));
+    /**
+     * @param {CrossFile[]} files 
+     * @param {string} template 
+     */
+    public refresh(files: CrossFile[], template: string): string {
+        files.forEach(async (file: CrossFile) => {
+            let hash = this.hash(file);
 
             if (this.isTemplateInclude(template, hash)) {
-                i++;
+                this.console.text('Refresh ' + file.path);
                 template = template.replace(
                     new RegExp(`\\/\\*\\*${hash}\\*\\*.*\\/\\*\\*-${hash}\\*\\*\\/`, "gm"),
-                    `/**${hash}**/\`${Base64.encode(file.mime.content)}\`/**-${hash}**/`
+                    `/**${hash}**/\`${Base64.encode(file.content)}\`/**-${hash}**/`
                 );
-                row.update('Replace Template - ' + i, 'warning');
             }
         });
-
-        row.success('Replaced Template - ' + i, 'white_check_mark');
 
         return template;
     }
 
-    public addTemplateBody<T extends CrossTplFilesContentObject>(template: string, filesContent: Array<T>, row: any) {
-        let i = 0;
-        filesContent.forEach(async (file: T) => {
-            let hash = Md5.init(file.file.replace(this.templateDir('/'), ''));
+    /**
+     * @param {CrossFile[]} files 
+     * @param {string} template 
+     * @returns {string}
+     */
+    public add(files: CrossFile[], template: string): string {
+        files.forEach(async (file: CrossFile) => {
+            let hash = this.hash(file);
 
             if (!this.isTemplateInclude(template, hash)) {
+                this.console.text('added ' + file.path);
                 template = template.replace(
-                    '/**<%%app_templates%%>**/', 
-                    `${this.createTemplateBody(file)}/**<%%app_templates%%>**/`
+                    '/**<%%app_templates%%>**/',
+                    `${this.body(file)}/**<%%app_templates%%>**/`
                 );
-                i++;
-                row.update('Add Template - ' + i, 'warning');
             }
         });
-
-        row.success('Added Template - ' + i, 'white_check_mark');
 
         return template;
     }
 
-    public removeTemplateBody(template: string, row: any) {
-        let i = 0;
+    /**
+     * @param {CrossFile[]} files 
+     * @param {string} template 
+     * @returns {string} 
+     */
+    public remove(files: CrossFile[], template: string): string {
         const list = this.listTemplateHash(template);
-        const files = this.getFilesRecursively(this.getOption('dirname') + '/' + this.getOption('templates'), [], 0, true);
-        list.forEach(async (hash: string) => {
-            if(files.indexOf(hash) === -1) {
-                template = template.replace(new RegExp(`\\/\\*\\/open\\/${hash}\\*\\*\\*\\/.*\\/\\*\\/close\\/${hash}\\*\\*\\*\\/`, "gs"), '');
-                i++;
-                row.update('Remove Template - ' + i, 'warning');
-            }
+        let fileHash: Array<string> = [];
+
+        files.forEach((file: CrossFile) => {
+            fileHash.push(this.hash(file));
         });
 
-        row.success('Removed Template - ' + i, 'white_check_mark');
+        list.forEach(async (hash: string) => {
+            if (fileHash.indexOf(hash) === -1) {
+                this.console.text('Remove ' + hash);
+                template = template.replace(new RegExp(`\\/\\*\\/open\\/${hash}\\*\\*\\*\\/.*\\/\\*\\/close\\/${hash}\\*\\*\\*\\/`, "gs"), '');
+            }
+        });
 
         return template;
     }
 
+    /**
+     * @param {string} template 
+     * @returns {Array<string>} 
+     */
     public listTemplateHash(template: string): Array<string> {
         let hash: Array<string> = [];
         let tags = template.match(RegExp("\\/\\*\\/open\\/(\\w*)\\*\\*\\*\\/", 'g')) || [];
@@ -187,22 +195,17 @@ export class CrossTplCore {
         return hash;
     }
 
-    public generateTemplateMain(body: string) {
-        let mainTemplate = fs.readFileSync(<string>this.#options.templatesMain, 'utf8');
-
-        mainTemplate = mainTemplate.replace('<%%contentBase64%%>', this.getOptions('contentBase64'));
-        mainTemplate = mainTemplate.replace('<%%dirHash%%>', this.getOptions('contentBase64'));
-
-        return mainTemplate.replace('<%%templates%%>', body);
-    }
-    
-    public generateTemplateMainLocal(body: string) {
-        let mainTemplate = fs.readFileSync(<string>this.#options.templatesMainLocal, 'utf8');
+    /**
+     * @param {string} body 
+     * @param {boolean} lang 
+     */
+    public main(body: string, lang: boolean): string {
+        let mainTemplate = this.getMainTemplate(lang);
 
         mainTemplate = mainTemplate.replace('\'/** <%%contentBase64%%> */\'', this.getOptions('contentBase64'));
         mainTemplate = mainTemplate.replace('\'/** <%%dirHash%%> */\'', this.getOptions('contentBase64'));
 
-        return mainTemplate.replace('/** <%%templates%%> */', body);
+        return mainTemplate.replace('/*<%%templates%%>*/', body);
     }
 
     public generateTemplateBase(dir: string, type: string) {
@@ -232,7 +235,7 @@ export class CrossTplCore {
                 window = <string>this.#options.templatesModuleWindowLocal;
                 break;
         }
-        
+
         switch (plugin) {
             case PLUGIN_CROSS_TPL:
                 commonjs = <string>this.#options.templatesModuleCommon;
@@ -297,38 +300,6 @@ export class CrossTplCore {
         return name in this.#options ? this.#options[name] : false;
     }
 
-    public getFilesContent<T extends string>(
-        directives: Array<T>,
-        fileMime: Array<CrossTplFilesContentObject> = [],
-        steps: any
-    ): Array<CrossTplFilesContentObject> {
-        const row = steps.advance('Pattern data collection', 'mag').start();
-        directives.forEach((path: T) => {
-            try {
-                const stats = fs.statSync(path);
-                row.update(path, 'white_check_mark');
-                fileMime.push({
-                    file: path,
-                    mime: {
-                        type: nodePathModule.extname(path),
-                        content: fs.readFileSync(path, 'utf8'),
-                        create: stats.birthtime,
-                        modified: stats.atime,
-                        size: stats.size,
-                    }
-                });
-
-            } catch (error) {
-                row.error('Information about fellow files', 'x');
-                throw new Error(error);
-            }
-        });
-
-        row.success('All data collected', 'white_check_mark');
-
-        return fileMime;
-    }
-
     public isTemplateInclude(content: string, hash: string) {
         if (
             content.search(new RegExp(`\\/\\*\\*${hash}\\*\\*\\/`, "gm")) !== -1 &&
@@ -338,24 +309,6 @@ export class CrossTplCore {
         }
 
         return false;
-    }
-
-    /**
-     * Get Template Files
-     * 
-     * @param {string} templateDir
-     * @returns {Array<string>}
-     */
-    public getTemplateFiles(templateDir: string | boolean = false, steps: any, hash: boolean = false): Array<string> {
-        const row = steps.advance('Collection template in the specified folder').start();
-
-        templateDir = templateDir || this.getOption('dirname') + '/' + this.getOption('templates');
-
-        const files = this.getFilesRecursively(String(templateDir), [], 0) || [];
-
-        row.success(`Files collected - ${files.length}`, 'white_check_mark');
-
-        return files;
     }
 
     /**
@@ -373,48 +326,63 @@ export class CrossTplCore {
     }
 
     /**
-     * Get all files recursively
-     * 
-     * @param {string} dir 
-     * @param {Array<string>} files 
-     * @param {number} iteration 
-     * @throws {TypeError}
-     * @returns {Array<string>}
+     * @param {CrossFile} file 
+     * @param {string} prefix 
+     * @returns {string}
      */
-    public getFilesRecursively(dir: string, files: Array<string> = [], iteration: number = 0, hash: boolean = false): Array<string> {
-        const objects: Array<string> = fs.readdirSync(dir);
+    public hash(file: CrossFile, prefix: string = ''): string {
+        let name = file.path;
 
-        if (objects.length === 0 && iteration === 0) {
-            return [];
+        if (this.isLang(file)) {
+            prefix += Md5.init(file.lang) + '-';
+            name = file.mime.name
         }
 
-        for (const index in objects) {
-            const name: string = dir + '/' + objects[index];
-            if (fs.statSync(name).isDirectory()) {
-                this.getFilesRecursively(name, files, iteration++, hash);
-            } else {
-                files.push(hash ? Md5.init(name.replace(this.templateDir('/'), '')) : name);
-            }
-        }
-
-        return files;
+        return Md5.init(prefix + name);
     }
 
-    public getLocalCollection(path: string, step: any): Map<string, Array<CrossTplFilesContentObject>>{
-        const objects: Array<string> = fs.readdirSync(path);
-
-        let locales: Map<string, Array<CrossTplFilesContentObject>> = new Map();
-        
-        if(objects.length === 0) {
-            return locales;
+    /**
+     * @param {CrossFile} file
+     * @returns {boolean} 
+     */
+    public isLang(file: CrossFile): boolean {
+        if ('lang' in file && file.lang !== false) {
+            return true;
         }
 
-        for (const index in objects) { 
-            locales.set(objects[index], 
-                this.getFilesContent(this.getFilesRecursively(path + '/' + objects[index]), [], step)
-            );
-        }
+        return false;
+    }
 
-        return locales;
+    /**
+     * @param {Array<string>} list
+     * @param {boolean} lang 
+     * @param {Array<Promise<CrossFile>>} files 
+     * @returns {Promise<CrossFile[]>}
+     */
+    public async load(list: Array<string>, isLang: boolean = false, files: Array<Promise<CrossFile>> = []): Promise<CrossFile[]> {
+        return new Promise(ok => {
+            list.forEach(async (file: string) => {
+                if (!fs.existsSync(file)) {
+                    return false;
+                }
+                files.push(new Promise(async (resolve: (param: CrossFile) => void) => {
+                    const mime: DiskMime = Disk.mime(file);
+                    const path: string = file.replace(isLang ? this.localDir('/') : this.templateDir('/'), '');
+                    const lang: string = path.split('/')[0];
+                    const mounting: CrossFile = {
+                        path: path,
+                        pwd: file,
+                        mime: mime,
+                        lang: isLang ? lang : isLang,
+                        content: await Disk.contentHandler(file, mime.type),
+                    }
+                    return void resolve(mounting);
+                }));
+            });
+
+            Promise.all(files).then((values: CrossFile[]) => {
+                return void ok(values);
+            });
+        });
     }
 }

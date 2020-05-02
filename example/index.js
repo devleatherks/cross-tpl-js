@@ -5,6 +5,6 @@ const crossTpl = new src_1.CrossTpl({
     dirname: __dirname,
     templates: 'view',
 });
-crossTpl.build();
+// crossTpl.build();
 crossTpl.watch();
 //# sourceMappingURL=index.js.map

@@ -1,3 +1,3 @@
 export { CrossTpl } from "./CrossTpl";
-export { CrossLocal } from "./CrossLocal";
+export { CrossLang } from "./CrossLang";
 // export { CrossTemplates } from "./dist/CrossTemplates";
