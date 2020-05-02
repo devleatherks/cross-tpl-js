@@ -18,6 +18,7 @@
   "include": [
     "src/**/*",
     "example/index.ts",
+    "example/local.ts",
   ],
   "exclude": [
     "node_modules",

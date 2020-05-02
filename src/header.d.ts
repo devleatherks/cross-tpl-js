@@ -5,8 +5,10 @@ export interface CrossTplConstructorOptions {
     dirname?: string
     outDir?: string
     templatesBody?: string
+    templatesBodyLocal?: string
     templatesMain?: string
     templatesWrapper?: string
+    localDir?: string
     contentBase64?: boolean
     dirHash?: boolean
     templatesModuleWindow?: string,

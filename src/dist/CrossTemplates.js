@@ -15,15 +15,6 @@ var CrossTplCore = /** @class */ (function () {
     };
     return CrossTplCore;
 }());
-/*/open/8cd728920dc49356699b7ef285a1323b***/
-/*!*************************************************************!*\
-  !*** Name: hi.html ***!
-  !*** Template: view/hi.html:52 ***!
-  !*** Create:   2020-04-25T08:44:46.325Z ***!
-  !*** Modified: 2020-04-25T09:02:28.153Z ***!
-  \*************************************************************/
-CrossTplCore.templates.set('8cd728920dc49356699b7ef285a1323b', /**8cd728920dc49356699b7ef285a1323b**/ "PGRpdiBpZD0iY3Jvc3MtdHBsIj5IaSEgTXkgbmFtZSBpcyBDcm9zc0pzIDopIDwvZGl2Pg==" /**-8cd728920dc49356699b7ef285a1323b**/);
-/*/close/8cd728920dc49356699b7ef285a1323b***/
 /**<%%app_templates%%>**/
 /**
  * Cross JS Template

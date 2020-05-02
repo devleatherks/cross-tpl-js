@@ -7,4 +7,4 @@ const crossTpl = new CrossTpl({
 });
 
 crossTpl.build();
-// crossTpl.watch();
+crossTpl.watch();

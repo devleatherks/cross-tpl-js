@@ -18,9 +18,11 @@
   "include": [
     "src/**/*",
     "example/index.ts",
+    "example/locale.ts",
   ],
   "exclude": [
     "node_modules",
+    "src/templates",
     "**/*.spec.ts",
     "src/dist"
   ]
