@@ -1,3 +1,7 @@
+/**
+ * @type Tpl
+ * @module Window
+ */
 (function(window, Object, exports) {
     /* <%%body%%> */
 

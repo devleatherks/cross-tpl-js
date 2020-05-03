@@ -37,24 +37,28 @@ class CrossLang {
     }
     build() {
         return __awaiter(this, void 0, void 0, function* () {
-            const list = Disk_1.Disk.list(this.localDir);
+            const list = Disk_1.Disk.list(this.src);
             const files = yield __classPrivateFieldGet(this, _core).load(list, true);
             return this.isUpload() ? this.upload(files) : this.create(files);
         });
     }
     create(files, body = []) {
+        __classPrivateFieldGet(this, _core).console.text('Create [' + files.length + ']');
         files.forEach((filesMime) => {
             body.push(__classPrivateFieldGet(this, _core).body(filesMime));
         });
         const main = __classPrivateFieldGet(this, _core).main(body.join(''), true);
         fs.writeFileSync(this.outDirTs, main);
+        __classPrivateFieldGet(this, _core).console.text('Script generation');
         __classPrivateFieldGet(this, _core).buildTsToJs(this.outDirTs, this.outDir()).then(() => {
+            __classPrivateFieldGet(this, _core).console.text('We pack the structure');
             fs.writeFileSync(this.outDirJs, __classPrivateFieldGet(this, _core).generateTemplateBase(this.outDirJs, CrossCore_1.PLUGIN_CROSS_LOCAL));
             fs.unlinkSync(this.outDirTs);
+            __classPrivateFieldGet(this, _core).console.succeed('Success! Done');
         });
     }
     watch() {
-        watch(this.localDir + '/**/*', (file) => __awaiter(this, void 0, void 0, function* () {
+        watch(this.src + '/**/*', (file) => __awaiter(this, void 0, void 0, function* () {
             this.upload(yield __classPrivateFieldGet(this, _core).load([file.path], true));
         }));
     }
@@ -68,8 +72,8 @@ class CrossLang {
     outDir() {
         return (__classPrivateFieldGet(this, _core).getOptions('outDir') || '');
     }
-    get localDir() {
-        return (__classPrivateFieldGet(this, _core).getOptions('dirname') || '') + '/' + (__classPrivateFieldGet(this, _core).getOptions('localDir') || '');
+    get src() {
+        return (__classPrivateFieldGet(this, _core).getOptions('dirname') || '') + '/' + (__classPrivateFieldGet(this, _core).getOptions('src') || '');
     }
     get outDirJs() {
         return this.outDir() + '/' + 'CrossLocal.js';

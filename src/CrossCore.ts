@@ -32,19 +32,18 @@ export class CrossTplCore {
         debug: true,
         templates: void 0,
         type: 'json',
-        localDir: void 0,
+        src: void 0,
         outDir: __dirname + '/dist',
         templateBodyLang: __dirname + '/templates/cross-body-lang.js',
         templateBodyMix: __dirname + '/templates/cross-body-mix.js',
         templateMainLang: __dirname + '/templates/cross-main-lang.ts',
         templateMainMix: __dirname + '/templates/cross-main-mix.ts',
         templatesBase: __dirname + '/templates/cross-tpl-base.txt',
-        templatesModuleWindow: __dirname + '/templates/cross-tpl-module-window.txt',
+        templatesModuleWindow: __dirname + '/templates/cross-tpl-module-window.js',
         templatesModuleWindowLocal: __dirname + '/templates/cross-local-module-window.js',
-        templatesModuleCommon: __dirname + '/templates/cross-tpl-module-common.txt',
+        templatesModuleCommon: __dirname + '/templates/cross-tpl-module-common.js',
         templatesModuleCommonLocal: __dirname + '/templates/cross-local-module-common.js',
         moduleBuild: CROSS_MODULE_COMMON_JS,
-        templatesWrapper: __dirname + '/templates/cross-tpl-wrapper.txt',
         contentBase64: true,
         upload: true,
         dirHash: true
@@ -61,14 +60,11 @@ export class CrossTplCore {
      * @private
      */
     console: any;
-
-    public templateDir(append: string = '') {
-        return this.#options.dirname + '/' + this.#options.templates + append;
+    
+    public src(append: string = '') {
+        return this.#options.dirname + '/' + this.#options.src + append;
     }
 
-    public localDir(append: string = '') {
-        return this.#options.dirname + '/' + this.#options.localDir + append;
-    }
 
     /**
      * @param {CrossFile} file
@@ -367,7 +363,7 @@ export class CrossTplCore {
                 }
                 files.push(new Promise(async (resolve: (param: CrossFile) => void) => {
                     const mime: DiskMime = Disk.mime(file);
-                    const path: string = file.replace(isLang ? this.localDir('/') : this.templateDir('/'), '');
+                    const path: string = file.replace(this.src('/'), '');
                     const lang: string = path.split('/')[0];
                     const mounting: CrossFile = {
                         path: path,

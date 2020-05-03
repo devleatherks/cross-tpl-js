@@ -10,8 +10,7 @@ export declare class CrossTplCore {
      * @private
      */
     console: any;
-    templateDir(append?: string): string;
-    localDir(append?: string): string;
+    src(append?: string): string;
     /**
      * @param {CrossFile} file
      * @returns {string}

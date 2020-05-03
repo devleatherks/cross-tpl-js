@@ -7,7 +7,7 @@ export declare class CrossLang {
     watch(): void;
     private upload;
     outDir(): any;
-    get localDir(): string;
+    get src(): string;
     get outDirJs(): string;
     get outDirTs(): string;
     isSourceJs(): boolean;

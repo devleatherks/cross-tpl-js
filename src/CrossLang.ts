@@ -15,7 +15,7 @@ export class CrossLang {
     }
 
     public async build() {
-        const list: Array<string> = Disk.list(this.localDir);
+        const list: Array<string> = Disk.list(this.src);
         const files = await this.#core.load(list, true);
 
         return this.isUpload() ? this.upload(files) : this.create(files);
@@ -49,7 +49,7 @@ export class CrossLang {
     }
 
     public watch() {
-        watch(this.localDir + '/**/*', async (file: any) => {
+        watch(this.src + '/**/*', async (file: any) => {
             this.upload(await this.#core.load([file.path], true));
         });
     }
@@ -68,8 +68,8 @@ export class CrossLang {
         return (this.#core.getOptions('outDir') || '');
     }
 
-    public get localDir() {
-        return (this.#core.getOptions('dirname') || '') + '/' + (this.#core.getOptions('localDir') || '');
+    public get src() {
+        return (this.#core.getOptions('dirname') || '') + '/' + (this.#core.getOptions('src') || '');
     }
 
     public get outDirJs() {

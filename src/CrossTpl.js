@@ -59,7 +59,6 @@ class CrossTpl {
     }
     watch() {
         watch(this.dir + '/**/*', (file) => __awaiter(this, void 0, void 0, function* () {
-            __classPrivateFieldGet(this, _core).console.start('Cross-tpl Watch');
             this.upload(yield __classPrivateFieldGet(this, _core).load([file.path], true));
         }));
     }
@@ -71,7 +70,7 @@ class CrossTpl {
         fs.writeFileSync(this.outDirJs, template);
     }
     get dir() {
-        return (__classPrivateFieldGet(this, _core).getOptions('dirname') || '') + '/' + (__classPrivateFieldGet(this, _core).getOptions('templates') || '');
+        return (__classPrivateFieldGet(this, _core).getOptions('dirname') || '') + '/' + (__classPrivateFieldGet(this, _core).getOptions('src') || '');
     }
     outDir() {
         return (__classPrivateFieldGet(this, _core).getOptions('outDir') || '');

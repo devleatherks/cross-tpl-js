@@ -65,7 +65,7 @@ export class CrossTpl {
     }
 
     public get dir(){
-        return (this.#core.getOptions('dirname') || '') + '/' + (this.#core.getOptions('templates') || '');
+        return (this.#core.getOptions('dirname') || '') + '/' + (this.#core.getOptions('src') || '');
     }
 
     public outDir() {

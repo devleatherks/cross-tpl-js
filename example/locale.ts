@@ -2,9 +2,8 @@ import { CrossLang }  from '../src'
 
 const crossLang = new CrossLang({
     dirname: __dirname,
-    localDir: 'local',
+    src: 'local',
     moduleBuild: 'window',
-    type: 'php',
     upload: false
 });
 

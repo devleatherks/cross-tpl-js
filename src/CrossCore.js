@@ -52,19 +52,18 @@ class CrossTplCore {
             debug: true,
             templates: void 0,
             type: 'json',
-            localDir: void 0,
+            src: void 0,
             outDir: __dirname + '/dist',
             templateBodyLang: __dirname + '/templates/cross-body-lang.js',
             templateBodyMix: __dirname + '/templates/cross-body-mix.js',
             templateMainLang: __dirname + '/templates/cross-main-lang.ts',
             templateMainMix: __dirname + '/templates/cross-main-mix.ts',
             templatesBase: __dirname + '/templates/cross-tpl-base.txt',
-            templatesModuleWindow: __dirname + '/templates/cross-tpl-module-window.txt',
+            templatesModuleWindow: __dirname + '/templates/cross-tpl-module-window.js',
             templatesModuleWindowLocal: __dirname + '/templates/cross-local-module-window.js',
-            templatesModuleCommon: __dirname + '/templates/cross-tpl-module-common.txt',
+            templatesModuleCommon: __dirname + '/templates/cross-tpl-module-common.js',
             templatesModuleCommonLocal: __dirname + '/templates/cross-local-module-common.js',
             moduleBuild: exports.CROSS_MODULE_COMMON_JS,
-            templatesWrapper: __dirname + '/templates/cross-tpl-wrapper.txt',
             contentBase64: true,
             upload: true,
             dirHash: true
@@ -75,11 +74,8 @@ class CrossTplCore {
          */
         _optionsDebug.set(this, []);
     }
-    templateDir(append = '') {
-        return __classPrivateFieldGet(this, _options).dirname + '/' + __classPrivateFieldGet(this, _options).templates + append;
-    }
-    localDir(append = '') {
-        return __classPrivateFieldGet(this, _options).dirname + '/' + __classPrivateFieldGet(this, _options).localDir + append;
+    src(append = '') {
+        return __classPrivateFieldGet(this, _options).dirname + '/' + __classPrivateFieldGet(this, _options).src + append;
     }
     /**
      * @param {CrossFile} file
@@ -319,7 +315,7 @@ class CrossTplCore {
                     }
                     files.push(new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
                         const mime = Disk_1.Disk.mime(file);
-                        const path = file.replace(isLang ? this.localDir('/') : this.templateDir('/'), '');
+                        const path = file.replace(this.src('/'), '');
                         const lang = path.split('/')[0];
                         const mounting = {
                             path: path,

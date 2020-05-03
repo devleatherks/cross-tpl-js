@@ -12,9 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const src_1 = require("../src");
 const crossLang = new src_1.CrossLang({
     dirname: __dirname,
-    localDir: 'local',
+    src: 'local',
     moduleBuild: 'window',
-    type: 'php',
     upload: false
 });
 (() => __awaiter(void 0, void 0, void 0, function* () {
