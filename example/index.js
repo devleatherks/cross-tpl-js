@@ -6,6 +6,6 @@ const crossTpl = new src_1.CrossTpl({
     src: 'view',
     upload: false
 });
-crossTpl.build();
-// crossTpl.watch();
+// crossTpl.build();
+crossTpl.watch();
 //# sourceMappingURL=index.js.map

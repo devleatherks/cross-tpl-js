@@ -209,10 +209,21 @@ export class CrossTplCore {
 
         let moduleBody = fs.readFileSync(this.getModulePath(<string>this.#options.moduleBuild, type), 'utf8');
 
-        mainTemplate = mainTemplate.replace(
-            '<%%md5%%>',
-            fs.readFileSync(__dirname + '/../node_modules/md5-typescript/dist/index.js', 'utf8').replace(/\s{2,}/g, "")
-        );
+        let pathMd5 = [
+            __dirname + '/../node_modules/md5-typescript/dist/index.js',
+            __dirname + '/../../md5-typescript/dist/index.js',
+        ];
+
+        pathMd5.forEach((path) => {
+            if(fs.existsSync(path)) {
+                mainTemplate = mainTemplate.replace(
+                    '<%%md5%%>',
+                    fs.readFileSync(path, 'utf8').replace(/\s{2,}/g, "")
+                );
+
+                return true;
+            }
+        });
 
         mainTemplate = mainTemplate.replace('export { Md5 };', '');
         mainTemplate = mainTemplate.replace('<%%cross-js%%>', fs.readFileSync(dir, 'utf8'));
@@ -331,7 +342,7 @@ export class CrossTplCore {
 
         if (this.isLang(file)) {
             prefix += Md5.init(file.lang) + '-';
-            name = file.mime.name
+            name = file.mime.name;
         }
 
         return Md5.init(prefix + name);

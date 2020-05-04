@@ -6,7 +6,7 @@ import { CrossTpl }  from 'cross-tpl'
 
 const crossTpl = new CrossTpl({
     dirname: __dirname,
-    templates: 'view',
+    src: 'view',
     upload: false // If true, then the build function will update the previously created
 });
 

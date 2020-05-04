@@ -19,16 +19,26 @@ var CrossTplCore = /** @class */ (function () {
     };
     return CrossTplCore;
 }());
-/*/open/8cd728920dc49356699b7ef285a1323b***/
+
+/*/open/2465e4961818522ad0d1f925e5e01c6d***/
+/*!*************************************************************!*\
+  !*** Name: <%%name_dir%%> ***!
+  !*** Template: tets.html:3 ***!
+  !*** Create:   2020-05-03T08:52:21.679Z ***!
+  !*** Modified: 2020-05-03T08:52:51.639Z ***!
+  \*************************************************************/
+  CrossTplCore.templates.set('2465e4961818522ad0d1f925e5e01c6d', /**2465e4961818522ad0d1f925e5e01c6d**/`c2FkZA==`/**-2465e4961818522ad0d1f925e5e01c6d**/);
+  /*/close/2465e4961818522ad0d1f925e5e01c6d***/
+/*/open/8cd728920dc49356699b7ef285a1323b***/
 /*!*************************************************************!*\
   !*** Name: <%%name_dir%%> ***!
   !*** Template: hi.html:53 ***!
   !*** Create:   2020-04-25T08:44:46.325Z ***!
-  !*** Modified: 2020-05-02T16:13:31.232Z ***!
+  !*** Modified: 2020-05-03T08:56:29.066Z ***!
   \*************************************************************/
-CrossTplCore.templates.set('8cd728920dc49356699b7ef285a1323b', /**8cd728920dc49356699b7ef285a1323b**/ "PGRpdiBpZD0iY3Jvc3MtdHBsIj5IaSEgTXkgbmFtZSBpcyBDcm9zc0pzIDopIDwvZGl2PiA=" /**-8cd728920dc49356699b7ef285a1323b**/);
-/*/close/8cd728920dc49356699b7ef285a1323b***/
-/**<%%app_templates%%>**/
+  CrossTplCore.templates.set('8cd728920dc49356699b7ef285a1323b', /**8cd728920dc49356699b7ef285a1323b**/`PGRpdiBpZD0iY3Jvc3MtdHBsIj5IaSEgTXkgbmFtZSBpcyBDcm9zc0pzIDopIDwvZGl2PiA=`/**-8cd728920dc49356699b7ef285a1323b**/);
+  /*/close/8cd728920dc49356699b7ef285a1323b***/
+/**<%%app_templates%%>**/
 /**
  * Cross JS Template
  *

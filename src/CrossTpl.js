@@ -59,15 +59,18 @@ class CrossTpl {
     }
     watch() {
         watch(this.dir + '/**/*', (file) => __awaiter(this, void 0, void 0, function* () {
-            this.upload(yield __classPrivateFieldGet(this, _core).load([file.path], true));
+            this.upload(yield __classPrivateFieldGet(this, _core).load([file.path], false));
         }));
     }
     upload(files) {
-        let template = fs.readFileSync(this.outDirJs, 'utf8');
-        template = __classPrivateFieldGet(this, _core).refresh(files, template);
-        template = __classPrivateFieldGet(this, _core).add(files, template);
-        template = __classPrivateFieldGet(this, _core).remove(files, template);
-        fs.writeFileSync(this.outDirJs, template);
+        return __awaiter(this, void 0, void 0, function* () {
+            let template = fs.readFileSync(this.outDirJs, 'utf8');
+            template = __classPrivateFieldGet(this, _core).refresh(files, template);
+            template = __classPrivateFieldGet(this, _core).add(files, template);
+            const list = Disk_1.Disk.list(this.dir);
+            template = __classPrivateFieldGet(this, _core).remove(yield __classPrivateFieldGet(this, _core).load(list, false), template);
+            fs.writeFileSync(this.outDirJs, template);
+        });
     }
     get dir() {
         return (__classPrivateFieldGet(this, _core).getOptions('dirname') || '') + '/' + (__classPrivateFieldGet(this, _core).getOptions('src') || '');

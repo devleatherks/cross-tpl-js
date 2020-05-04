@@ -6,5 +6,5 @@ const crossTpl = new CrossTpl({
     upload: false
 });
 
-crossTpl.build();
-// crossTpl.watch();
+// crossTpl.build();
+crossTpl.watch();

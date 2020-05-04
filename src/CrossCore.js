@@ -183,7 +183,16 @@ class CrossTplCore {
     generateTemplateBase(dir, type) {
         let mainTemplate = fs.readFileSync(__classPrivateFieldGet(this, _options).templatesBase, 'utf8');
         let moduleBody = fs.readFileSync(this.getModulePath(__classPrivateFieldGet(this, _options).moduleBuild, type), 'utf8');
-        mainTemplate = mainTemplate.replace('<%%md5%%>', fs.readFileSync(__dirname + '/../node_modules/md5-typescript/dist/index.js', 'utf8').replace(/\s{2,}/g, ""));
+        let pathMd5 = [
+            __dirname + '/../node_modules/md5-typescript/dist/index.js',
+            __dirname + '/../../md5-typescript/dist/index.js',
+        ];
+        pathMd5.forEach((path) => {
+            if (fs.existsSync(path)) {
+                mainTemplate = mainTemplate.replace('<%%md5%%>', fs.readFileSync(path, 'utf8').replace(/\s{2,}/g, ""));
+                return true;
+            }
+        });
         mainTemplate = mainTemplate.replace('export { Md5 };', '');
         mainTemplate = mainTemplate.replace('<%%cross-js%%>', fs.readFileSync(dir, 'utf8'));
         return moduleBody.replace('/* <%%body%%> */', mainTemplate);

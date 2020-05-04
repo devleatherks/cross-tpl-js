@@ -54,12 +54,14 @@ export class CrossLang {
         });
     }
 
-    private upload(files: CrossFile[]) {
+    private async upload(files: CrossFile[]) {
         let template = fs.readFileSync(this.outDirJs, 'utf8');
 
         template = this.#core.refresh(files, template);
         template = this.#core.add(files, template);
-        template = this.#core.remove(files, template);
+        
+        const list: Array<string> = Disk.list(this.src);
+        template = this.#core.remove(await this.#core.load(list, true), template);
 
         fs.writeFileSync(this.outDirJs, template);
     }
