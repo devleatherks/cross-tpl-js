@@ -13,6 +13,7 @@ const { spawn } = require("child_process");
 
 export const CROSS_MODULE_WINDOW_BW = 'window';
 export const CROSS_MODULE_COMMON_JS = 'common';
+export const CROSS_MODULE_AMD = 'amd';
 export const PLUGIN_CROSS_TPL = 'cross-tpl';
 export const PLUGIN_CROSS_LOCAL = 'cross-local';
 
@@ -42,6 +43,7 @@ export class CrossTplCore {
         templatesModuleWindow: __dirname + '/templates/cross-tpl-module-window.js',
         templatesModuleWindowLocal: __dirname + '/templates/cross-local-module-window.js',
         templatesModuleCommon: __dirname + '/templates/cross-tpl-module-common.js',
+        templatesModuleAmd: __dirname + '/templates/cross-tpl-module-amd.js',
         templatesModuleCommonLocal: __dirname + '/templates/cross-local-module-common.js',
         moduleBuild: CROSS_MODULE_COMMON_JS,
         contentBase64: true,
@@ -232,7 +234,7 @@ export class CrossTplCore {
     }
 
     public getModulePath(name: string, plugin = PLUGIN_CROSS_TPL): string {
-        let window, commonjs;
+        let window, commonjs, amd;
 
         switch (plugin) {
             case PLUGIN_CROSS_TPL:
@@ -252,12 +254,21 @@ export class CrossTplCore {
                 break;
         }
 
+        switch (plugin) {
+            case PLUGIN_CROSS_TPL:
+                amd = <string>this.#options.templatesModuleAmd;
+                break;
+        }
+
         switch (name) {
             case CROSS_MODULE_WINDOW_BW:
                 return <string>window;
                 break;
             case CROSS_MODULE_COMMON_JS:
                 return <string>commonjs;
+                break;
+            case CROSS_MODULE_AMD:
+                return <string>amd;
                 break;
         }
 
@@ -280,7 +291,7 @@ export class CrossTplCore {
                         "./node_modules/@types"
                     ],
                 })).pipe(gulp.dest(outDir)).on("end", (data: any) => {
-                    ev();
+                    ev('');
                 });
         })
     }

@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Disk = void 0;
 const fs = require("fs");
 const nodePathModule = require("path");
 const child_process_1 = require("child_process");

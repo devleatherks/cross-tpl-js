@@ -3,8 +3,11 @@ import { CrossTpl }  from '../src'
 const crossTpl = new CrossTpl({
     dirname: __dirname,
     src: 'view',
-    upload: false
+    upload: false,
+    moduleBuild: 'amd'
 });
 
-// crossTpl.build();
-crossTpl.watch();
+(async() => {
+    crossTpl.build();
+    crossTpl.watch();
+})()

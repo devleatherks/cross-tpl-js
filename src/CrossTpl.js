@@ -23,6 +23,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _core;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CrossTpl = void 0;
 const fs = require("fs");
 const CrossCore_1 = require("./CrossCore");
 const Disk_1 = require("./Helpers/Disk");
@@ -59,6 +60,7 @@ class CrossTpl {
     }
     watch() {
         watch(this.dir + '/**/*', (file) => __awaiter(this, void 0, void 0, function* () {
+            console.log(file.path);
             this.upload(yield __classPrivateFieldGet(this, _core).load([file.path], false));
         }));
     }

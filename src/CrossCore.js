@@ -23,6 +23,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
 };
 var _debug, _options, _optionsDebug;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CrossTplCore = exports.PLUGIN_CROSS_LOCAL = exports.PLUGIN_CROSS_TPL = exports.CROSS_MODULE_AMD = exports.CROSS_MODULE_COMMON_JS = exports.CROSS_MODULE_WINDOW_BW = void 0;
 const fs = require("fs");
 const js_base64_1 = require("js-base64");
 const md5_typescript_1 = require("md5-typescript");
@@ -34,6 +35,7 @@ var path = require("path");
 const { spawn } = require("child_process");
 exports.CROSS_MODULE_WINDOW_BW = 'window';
 exports.CROSS_MODULE_COMMON_JS = 'common';
+exports.CROSS_MODULE_AMD = 'amd';
 exports.PLUGIN_CROSS_TPL = 'cross-tpl';
 exports.PLUGIN_CROSS_LOCAL = 'cross-local';
 class CrossTplCore {
@@ -62,6 +64,7 @@ class CrossTplCore {
             templatesModuleWindow: __dirname + '/templates/cross-tpl-module-window.js',
             templatesModuleWindowLocal: __dirname + '/templates/cross-local-module-window.js',
             templatesModuleCommon: __dirname + '/templates/cross-tpl-module-common.js',
+            templatesModuleAmd: __dirname + '/templates/cross-tpl-module-amd.js',
             templatesModuleCommonLocal: __dirname + '/templates/cross-local-module-common.js',
             moduleBuild: exports.CROSS_MODULE_COMMON_JS,
             contentBase64: true,
@@ -198,7 +201,7 @@ class CrossTplCore {
         return moduleBody.replace('/* <%%body%%> */', mainTemplate);
     }
     getModulePath(name, plugin = exports.PLUGIN_CROSS_TPL) {
-        let window, commonjs;
+        let window, commonjs, amd;
         switch (plugin) {
             case exports.PLUGIN_CROSS_TPL:
                 window = __classPrivateFieldGet(this, _options).templatesModuleWindow;
@@ -215,12 +218,20 @@ class CrossTplCore {
                 commonjs = __classPrivateFieldGet(this, _options).templatesModuleCommonLocal;
                 break;
         }
+        switch (plugin) {
+            case exports.PLUGIN_CROSS_TPL:
+                amd = __classPrivateFieldGet(this, _options).templatesModuleAmd;
+                break;
+        }
         switch (name) {
             case exports.CROSS_MODULE_WINDOW_BW:
                 return window;
                 break;
             case exports.CROSS_MODULE_COMMON_JS:
                 return commonjs;
+                break;
+            case exports.CROSS_MODULE_AMD:
+                return amd;
                 break;
         }
         return __classPrivateFieldGet(this, _options).templatesModuleCommon;
@@ -241,7 +252,7 @@ class CrossTplCore {
                     "./node_modules/@types"
                 ],
             })).pipe(gulp.dest(outDir)).on("end", (data) => {
-                ev();
+                ev('');
             });
         });
     }

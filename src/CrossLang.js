@@ -23,6 +23,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _core;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CrossLang = void 0;
 const fs = require("fs");
 const CrossCore_1 = require("./CrossCore");
 const Disk_1 = require("./Helpers/Disk");

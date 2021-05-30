@@ -50,6 +50,7 @@ export class CrossTpl {
 
     public watch() {
         watch(this.dir + '/**/*', async (file: any) => {
+            console.log(file.path);
             this.upload(await this.#core.load([file.path], false));
         });
     }

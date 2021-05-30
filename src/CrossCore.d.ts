@@ -1,6 +1,7 @@
 import { CrossTplConstructorOptions, CrossFile } from './header';
 export declare const CROSS_MODULE_WINDOW_BW = "window";
 export declare const CROSS_MODULE_COMMON_JS = "common";
+export declare const CROSS_MODULE_AMD = "amd";
 export declare const PLUGIN_CROSS_TPL = "cross-tpl";
 export declare const PLUGIN_CROSS_LOCAL = "cross-local";
 export declare class CrossTplCore {
